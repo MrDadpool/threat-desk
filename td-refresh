@@ -21,6 +21,12 @@ SNAPSHOT = os.path.join(HERE, "data", "snapshot.json")
 KEEP_DAYS = 14
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 "
       "(KHTML, like Gecko) Version/17.0 Safari/605.1.15")
+# SANS asks API callers to identify themselves; a browser UA here would be rude and
+# is also what gets you rate-limited off /api/.
+ISC_UA = "ThreatDesk/1.0 (+https://github.com/MrDadpool/threat-desk)"
+ISC = "https://isc.sans.edu/api/"
+MAP_COUNTRIES = 90      # bubbles beyond this are sub-pixel; keeps the snapshot small
+MAP_PORTS = 10
 
 quiet = "--quiet" in sys.argv
 
@@ -52,6 +58,86 @@ def fetch(url):
     if raw[:2] == b"\x1f\x8b":
         raw = gzip.GzipFile(fileobj=io.BytesIO(raw)).read()
     return raw
+
+
+def fetch_json(url, timeout=25, tries=3):
+    """SANS throttles bursts, so back off and retry rather than blank the panel."""
+    req = urllib.request.Request(url, headers={
+        "User-Agent": ISC_UA, "Accept": "application/json",
+    })
+    for n in range(tries):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return json.loads(r.read().decode("utf-8", "replace"))
+        except Exception:
+            if n == tries - 1:
+                raise
+            time.sleep(2 * (n + 1))
+
+
+def dshield():
+    """DShield attack telemetry for the origins map.
+
+    /api/country/<CC> ignores the country in the path and returns every source
+    country, which is the whole point — it is the only free origin geography.
+    There is no target-country endpoint anywhere in the free API, so the
+    destination side of the panel is the targeted ports, not a place.
+    Any failure returns None and the panel hides; the feeds are unaffected.
+    """
+    try:
+        rows = fetch_json(ISC + "country/US?json")
+        countries = []
+        for r in rows:
+            cc = (r.get("country") or "").strip().upper()
+            if not cc or cc == "XX":
+                continue
+            reports = int(r.get("reports") or 0)
+            if reports <= 0:
+                continue
+            countries.append({
+                "c": cc,
+                "r": reports,
+                "s": int(r.get("sources") or 0),
+                "t": int(r.get("targets") or 0),
+                "p": round(float(r.get("persistance") or 0), 1),
+            })
+        countries.sort(key=lambda c: -c["r"])
+        countries = countries[:MAP_COUNTRIES]
+        if not countries:
+            raise ValueError("no source countries")
+
+        raw = fetch_json(ISC + f"topports/records/{MAP_PORTS}?json")
+        # topports comes back as an object keyed "0","1",… plus date/limit scalars.
+        rec = raw.values() if isinstance(raw, dict) else raw
+        ports = sorted(
+            ({"p": int(v["targetport"]), "r": int(v.get("records") or 0),
+              "s": int(v.get("sources") or 0), "t": int(v.get("targets") or 0)}
+             for v in rec if isinstance(v, dict) and "targetport" in v),
+            key=lambda v: -v["r"])[:MAP_PORTS]
+
+        day = None
+        try:
+            today = time.strftime("%Y-%m-%d", time.gmtime())
+            back = time.strftime("%Y-%m-%d", time.gmtime(time.time() - 86400))
+            sums = fetch_json(ISC + f"dailysummary/{back}/{today}?json")
+            if sums:
+                last = sums[-1]
+                day = {"d": last.get("date"),
+                       "records": int(last.get("records") or 0),
+                       "sources": int(last.get("sources") or 0),
+                       "targets": int(last.get("targets") or 0)}
+        except Exception:
+            pass       # the summary is a nice-to-have; origins are the panel
+
+        if not quiet:
+            print(f"  ok   {len(countries):>3} origin countries, {len(ports)} ports  dshield")
+        return {"t": int(time.time() * 1000), "countries": countries,
+                "ports": ports, "day": day,
+                "src": "SANS Internet Storm Center / DShield"}
+    except Exception as e:
+        if not quiet:
+            print(f"  FAIL             dshield  ({type(e).__name__}: {e})"[:110])
+        return None
 
 
 TAG = re.compile(r"<[^>]*>")
@@ -154,6 +240,25 @@ def one(feed):
                     "items": 0, "ms": int((time.time() - t0) * 1000), "err": msg}
 
 
+def last_dshield():
+    """The DShield block from the snapshot on disk, if it is under a day old."""
+    for path in (SNAPSHOT, LOCAL_PAGE):
+        try:
+            raw = open(path).read()
+            if path == LOCAL_PAGE:
+                raw = re.search(r"var EMBED=(.*?); /\*__EMBED__\*/", raw, re.S).group(1)
+                raw = raw.replace("<\\/", "</")
+            got = json.loads(raw).get("dshield")
+            if got and got.get("countries") and \
+                    time.time() * 1000 - got.get("t", 0) < 86400_000:
+                if not quiet:
+                    print("  note             dshield: reusing the last good pull")
+                return got
+        except Exception:
+            continue
+    return None
+
+
 def main():
     src = open(PAGE).read()
     feeds = feeds_from_page(src)
@@ -161,9 +266,13 @@ def main():
     t0 = time.time()
     items, health = [], []
     with ThreadPoolExecutor(max_workers=16) as ex:
+        attacks = ex.submit(dshield)
         for got, stat in ex.map(one, feeds):
             items += got
             health.append(stat)
+        attacks = attacks.result()
+    if attacks is None:
+        attacks = last_dshield()      # transient ISC failure: reuse the last good pull
     health.sort(key=lambda h: (h["cat"], h["n"]))
     fails = [(h["n"], h.get("err", "")) for h in health if not h["ok"]]
     elapsed = time.time() - t0
@@ -194,6 +303,7 @@ def main():
             "slowest_ms": lat[-1],
             "retain_days": KEEP_DAYS,
         },
+        "dshield": attacks,
     }
     blob = json.dumps(snapshot, separators=(",", ":"), ensure_ascii=False)
 
@@ -214,6 +324,7 @@ def main():
         where, size = os.path.relpath(SNAPSHOT, HERE), os.path.getsize(SNAPSHOT)
 
     print(f"\n{len(feeds)-len(fails)}/{len(feeds)} sources · {len(items)} items · "
+          f"{'dshield ok' if attacks else 'dshield down'} · "
           f"{time.time()-t0:.1f}s · {where} {size/1e6:.1f} MB")
     if fails:
         print("failed: " + ", ".join(n for n, _ in fails))

@@ -2,8 +2,8 @@
 
 A self-hosted news desk for security, sysadmin, platform and AI signal. 93 RSS/Atom
 sources across six domains, polled on a schedule, rendered as one page: a coverage
-summary up top (arrival volume, CVE IDs seen, source health) and a merged river of
-headlines underneath.
+summary up top (arrival volume, CVE IDs seen, source health, attack origins) and a
+merged river of headlines underneath.
 
 Every figure on the page is counted from the snapshot. Nothing is estimated.
 
@@ -50,6 +50,29 @@ Edit the `FEEDS` object at the top of the `<script>` in `threat-desk.html`, then
 The Sources dialog in the page shows every feed's last result, item count, and fetch
 latency, and lets you disable one without editing anything.
 
+## Attack origins
+
+The deck carries a world map of attack **source countries**, bubble area proportional to
+report volume, from the [SANS Internet Storm Center](https://isc.sans.edu/) DShield sensor
+network — free, no API key. Beside it: the ports being hit, by record count.
+
+Unlike the RSS feeds, `isc.sans.edu/api` sends `Access-Control-Allow-Origin: *`, so the
+page fetches this itself on load. The map fills with no snapshot, no `td-refresh`, and no
+server — including straight off `file://`. `td-refresh` also writes the same telemetry
+into the snapshot so the hosted page paints the map before the live fetch lands, and the
+last pull is cached in `localStorage` for the same reason. Older data never overwrites
+newer, whichever route it arrives by.
+
+DShield publishes no target geography (its targets are its own sensors, worldwide), so
+there is no destination country and the map does not draw arcs pretending otherwise. The
+destination dimension is the ports column. If DShield is unreachable the last pull stays
+on screen, labelled with its age; with nothing cached the panel hides. Feeds are
+unaffected either way.
+
+The world outline and country centroids are inlined in the page (~24 KB, Natural Earth
+110m, public domain) so it stays one portable file with no CDN. `tools/gen-map.py`
+regenerates them.
+
 ## Reading it
 
 | | |
@@ -75,6 +98,16 @@ limited. The scheduled poll is the real one.
   If the snapshot goes stale, check whether the schedule was disabled and re-enable it.
 - **`arXiv`'s `rss.arxiv.org` feeds return 0 items outside announcement windows** — this
   uses the `export.arxiv.org` API endpoint instead.
+
+## Tests
+
+```bash
+node test-theme.cjs && node test-map.cjs
+```
+
+Theme selection and persistence; map geometry bounds, bubble scaling, and every
+degenerate telemetry shape. They are not wired into the poll workflow — run them before
+pushing a page change.
 
 ## License
 

@@ -7,12 +7,47 @@ no hosting, no third-party service holding the source list.
 - `threat-desk.html` — the reader. Feed registry lives in the `FEEDS` object at the top of
   the `<script>`; the latest snapshot is embedded in `var EMBED={...}` further down.
   Set `const OPERATOR = "Your Name"` just below it to put a name in the masthead.
+- `tools/gen-map.py` — regenerates the world outline + country centroids inlined in the
+  page (Natural Earth 110m, public domain). Only needed if the map geometry changes.
+- `test-theme.cjs`, `test-map.cjs` — `node test-theme.cjs && node test-map.cjs`. Not wired
+  into CI; the poll workflow deploys without running them.
 - `tokens.css` — the design tokens, for reference. The page inlines the same values so it
   stays a single portable file; edit both if you change a token.
 - `_v1-backup.html` — the pre-redesign reader. Delete when you're happy.
 - `td-refresh` — Python 3 fetcher (stdlib only). Reads `FEEDS` out of the HTML, pulls every
   feed in 16 threads, dedupes by title, drops anything older than 14 days, clamps
   future-dated posts to now, rewrites the `EMBED` blob in place.
+
+## Attack origins map
+Panel at the bottom of the deck. Bubbles are attack **source countries**, area-proportional
+to DShield report volume, top three in the accent colour.
+
+- Source: SANS ISC / DShield, free, no key. **The API sends
+  `Access-Control-Allow-Origin: *`**, so the page fetches it client-side in `pullAttack()`
+  — the map works on `file://` with no snapshot and no server. Do not assume CORS is
+  closed here; it was checked with `curl -D -` on 2026-09-08.
+- Three routes fill the panel, newest timestamp wins (`takeAttack`): the live browser
+  fetch, the snapshot's `dshield` block (so the hosted page paints instantly), and a
+  `td.attack` localStorage copy of the last pull. `td-refresh` calls the same endpoints
+  with a `ThreatDesk/1.0` UA — SANS throttles bursts, so `fetch_json` retries 3× with
+  backoff and `last_dshield()` reuses a snapshot pull under 24 h old rather than writing
+  `dshield: null`.
+- `shapeAttack()` in the page and `dshield()` in `td-refresh` normalize to the same
+  shape. Change one, change the other.
+  - `country/US?json` — ignores the path country and returns **every** source country.
+    Top 90 kept (`MAP_COUNTRIES`); the rest are sub-pixel.
+  - `topports/records/10?json` — object keyed `"0","1",…` plus `date`/`limit` scalars.
+  - `dailysummary/<from>/<to>?json` — the records/sources line in the caption.
+- **There is no target-country endpoint in the free API.** DShield's targets are its own
+  worldwide sensors. So the destination side of the panel is the targeted-ports column,
+  not a second geography, and the caption says so. Don't add arcs to an invented endpoint.
+- Header appends `· pulled Nm ago` once the data is over 90 min old, so a stale panel
+  never reads as live.
+- Geometry is inlined (~24 KB): equirectangular 720x360, Douglas-Peucker at 1.5px. The
+  frame crops to `0 12 720 306` — the polar cap and Antarctica hold no bubbles. Natural
+  Earth omits the micro-states DShield reports (SG and HK are top-15 sources), so those
+  centroids are hand-entered in `gen-map.py`'s `EXTRA`; AQ is pinned to the peninsula
+  because its area centroid is at 80S, below the frame.
 
 ## Hosting (Cloudflare Pages + GitHub Actions, all free tier)
 Repo: https://github.com/MrDadpool/threat-desk (public)
