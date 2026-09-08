@@ -15,7 +15,7 @@ no hosting, no third-party service holding the source list.
   future-dated posts to now, rewrites the `EMBED` blob in place.
 
 ## Hosting (Cloudflare Pages + GitHub Actions, all free tier)
-Repo: https://github.com/DadMadeAnApp/threat-desk (public)
+Repo: https://github.com/MrDadpool/threat-desk (public)
 Target URL: https://threatdesk.dadmadeanapp.com
 
 - `main` holds source only. `data/` and `threat-desk.local.html` are gitignored.
