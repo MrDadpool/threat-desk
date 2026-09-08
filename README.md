@@ -11,8 +11,15 @@ Every figure on the page is counted from the snapshot. Nothing is estimated.
 
 ```
 td-refresh  ──polls 93 feeds──▶  data/snapshot.json  ──▶  threat-desk.html
-   (GitHub Actions, every 30 min)                            (static page, no build step)
+   (GitHub Actions, every 30 min)        (deploy branch)     (static page, no build step)
+                                                             ▲
+                          isc.sans.edu/api ──attack origins───┘  (fetched by the page)
 ```
+
+**Open `threat-desk.html` and it works.** No install, no server, no build. Headlines come
+from the scheduled snapshot on the `deploy` branch, which GitHub serves with
+`Access-Control-Allow-Origin: *`; the attack map comes straight from the ISC API. A
+served copy prefers its own `data/snapshot.json` and only falls back to the network one.
 
 - `threat-desk.html` — the whole reader. No framework, no bundler, no dependencies.
   Fetches `data/snapshot.json` on load.
@@ -24,19 +31,24 @@ td-refresh  ──polls 93 feeds──▶  data/snapshot.json  ──▶  threat
 
 ## Run it locally
 
+Just open `threat-desk.html`. Nothing else is required — it reads the scheduled snapshot
+over the network.
+
+To poll on your own machine instead of using the scheduled one:
+
 ```bash
 ./td-refresh                    # writes data/snapshot.json
 python3 -m http.server 8000     # then open http://localhost:8000/threat-desk.html
 ```
 
-For a single file that works offline, with no server:
+For a single file that works with **no network at all**:
 
 ```bash
 ./td-refresh --embed --open      # writes threat-desk.local.html
 ```
 
 A `file://` page can't fetch a sibling JSON, which is why the offline build bakes the
-snapshot in.
+snapshot in rather than reading `data/`.
 
 ## Add or remove a source
 
@@ -85,9 +97,11 @@ River or by-source layout, 6 h to 14 d windows, domain tabs with unread counts, 
 CVE badges, and a saved color theme selector: Midnight, Daylight, Violet, Neon mint,
 Crimson, and Slate & coral. Read/pinned state lives in `localStorage`, per browser.
 
-The in-page **Poll now** button exists as a fallback and is the slow path — browsers can't
-fetch most feeds directly (CORS), so it relays through a third-party service and is rate
-limited. The scheduled poll is the real one.
+The in-page **Poll now** button exists as a fallback and is the slow path — no feed in the
+registry sends an `Access-Control-Allow-Origin` header, so a browser cannot read them
+directly; it relays through a third-party service, is rate limited, and reaches roughly a
+quarter of the sources. The scheduled poll is the real one, which is why the page reads
+its snapshot rather than polling on load.
 
 ## Known limits
 
@@ -96,6 +110,9 @@ limited. The scheduled poll is the real one.
   dropped rather than shown as broken.
 - **GitHub disables scheduled workflows after 60 days without repository activity.**
   If the snapshot goes stale, check whether the schedule was disabled and re-enable it.
+- **The page reads the snapshot from `raw.githubusercontent.com`, so the repo has to stay
+  public.** Make it private and a bare `threat-desk.html` loses its headlines; the attack
+  map still works, and `./td-refresh --embed` still produces a self-contained file.
 - **`arXiv`'s `rss.arxiv.org` feeds return 0 items outside announcement windows** — this
   uses the `export.arxiv.org` API endpoint instead.
 

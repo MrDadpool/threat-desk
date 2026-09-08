@@ -1216,16 +1216,34 @@ adopt(load(LS.cache,null),'cache');
 takeAttack(load(LS.attack,null));   /* paint the last map instantly, then refresh it */
 refreshAttack();
 
-/* file:// pages cannot fetch a sibling JSON, so this quietly no-ops locally */
-if(location.protocol!=='file:'){
-  fetch('data/snapshot.json',{cache:'no-cache'})
-    .then(r=>r.ok?r.json():Promise.reject(new Error('HTTP '+r.status)))
-    .then(snap=>{if(adopt(snap,'hosted'))dedupe()})
-    .catch(()=>{})
-    .finally(start);
-}else{
+/* Every feed in FEEDS answers without an Access-Control-Allow-Origin header, so a
+   browser cannot read them directly — the in-page poll is a rate-limited relay and
+   reaches maybe a quarter of them. The scheduled poll has no such limit, and
+   raw.githubusercontent serves the deploy branch with `Access-Control-Allow-Origin: *`,
+   so this page reads the scheduled snapshot instead. That is what makes a bare
+   threat-desk.html work on its own, over file://, with nothing installed and no
+   server: headlines from here, the map straight from the ISC API. Requires the repo
+   to stay public. */
+const SNAPSHOT='data/snapshot.json';
+const REMOTE_SNAPSHOT='https://raw.githubusercontent.com/MrDadpool/threat-desk/'+
+                      'deploy/data/snapshot.json';
+
+async function loadSnapshot(){
+  const get=u=>fetch(u,{cache:'no-cache'})
+    .then(r=>r.ok?r.json():Promise.reject(new Error('HTTP '+r.status)));
+  /* a file:// page cannot fetch a sibling JSON at all, so it skips straight to the
+     network copy; a served page prefers its own */
+  const routes=location.protocol==='file:'
+    ? [[REMOTE_SNAPSHOT,'deploy branch']]
+    : [[SNAPSHOT,'hosted'],[REMOTE_SNAPSHOT,'deploy branch']];
+  for(const [url,label] of routes){
+    try{
+      if(adopt(await get(url),label)){dedupe();break}
+    }catch(e){}
+  }
   start();
 }
+loadSnapshot();
 </script>
 </body>
 </html>

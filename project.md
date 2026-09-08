@@ -18,6 +18,20 @@ no hosting, no third-party service holding the source list.
   feed in 16 threads, dedupes by title, drops anything older than 14 days, clamps
   future-dated posts to now, rewrites the `EMBED` blob in place.
 
+## Why a bare threat-desk.html works
+Opening the file needs nothing installed. Two network reads, both CORS-open:
+- headlines — `raw.githubusercontent.com/MrDadpool/threat-desk/deploy/data/snapshot.json`
+  (`REMOTE_SNAPSHOT` in the page). A served copy tries its own `data/snapshot.json` first
+  and only falls back to this; a `file://` copy goes straight to it, since a file page
+  cannot fetch a sibling JSON.
+- attack origins — the ISC API, client-side (below).
+
+Not the in-browser poll. **No feed in the registry sends an
+`Access-Control-Allow-Origin` header** (checked with `curl -D -` on 2026-09-08:
+Krebs, BleepingComputer, Ars, CISA — all bare), so the browser cannot read them; the
+`PROXIES` relay reaches about a quarter and is rate limited. Keep the snapshot as the
+data path. Requires the repo to stay public.
+
 ## Attack origins map
 Panel at the bottom of the deck. Bubbles are attack **source countries**, area-proportional
 to DShield report volume, top three in the accent colour.
