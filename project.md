@@ -14,11 +14,26 @@ no hosting, no third-party service holding the source list.
   feed in 16 threads, dedupes by title, drops anything older than 14 days, clamps
   future-dated posts to now, rewrites the `EMBED` blob in place.
 
-## Use
-1. `./td-refresh --open` — fetch and open in the default browser.
-2. Afterwards just open `threat-desk.html`; `./td-refresh` whenever you want fresh items.
+## Hosting (Cloudflare Pages + GitHub Actions, all free tier)
+Repo: https://github.com/DadMadeAnApp/threat-desk (public)
+Target URL: https://threatdesk.dadmadeanapp.com
 
-Auto-refresh every 30 min (optional):
+- `main` holds source only. `data/` and `threat-desk.local.html` are gitignored.
+- `.github/workflows/poll.yml` runs `./td-refresh` every 30 min (plus manual dispatch),
+  assembles `out/` (index.html + data/snapshot.json + _headers) and **force-pushes a
+  single-commit `deploy` branch**. The 1 MB snapshot never accumulates in history.
+- Cloudflare Pages serves the `deploy` branch. Build command: none. Output dir: `/`.
+- Why Actions polls instead of a Worker: free Workers get **10 ms CPU per invocation**,
+  which cannot parse 93 XML feeds, and **50 subrequests** per invocation for 93 feeds.
+  Actions has neither limit and the poll takes ~5 s. Verified 2026-09-08.
+- Access (login) later is free to 50 users — no code change needed.
+
+## Use
+1. `./td-refresh` — writes `data/snapshot.json`; serve the folder and open `threat-desk.html`.
+2. `./td-refresh --embed --open` — standalone `threat-desk.local.html` for offline/no-server use.
+3. Hosted copy needs nothing; the cron keeps it current.
+
+Local auto-refresh (only needed if you also want the local copy current):
 ```
 cat > ~/Library/LaunchAgents/com.threatdesk.refresh.plist <<'P'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -72,4 +87,14 @@ what feeds "93/93 sources live", the cycle time, and the per-feed `ms` in the So
   feed2json) were all dead, key-gated, or 20s-hanging on 2026-09-08. Hence the local fetcher.
 
 ## Next up
-- Nothing pending. Add feeds by adding a `{n:"Name", u:"url"}` line to `FEEDS` and re-running `./td-refresh`.
+- **Waiting on David:** connect Cloudflare Pages to the repo (`deploy` branch) and attach
+  `threatdesk.dadmadeanapp.com`. Needs dashboard access; can't be done from the CLI without
+  a Wrangler login.
+- Then optional: Cloudflare Access in front of it (free to 50 users).
+
+## Watch out
+- GitHub disables scheduled workflows after **60 days without repository activity**. Bot
+  pushes to `deploy` may not count. If the snapshot goes stale, re-enable the schedule in
+  the Actions tab.
+- Add feeds by adding a `{n:"Name", u:"url"}` line to `FEEDS` in `threat-desk.html`, then
+  re-run `./td-refresh`. The scheduled poll picks the new source up on its next run.
