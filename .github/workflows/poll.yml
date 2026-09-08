@@ -1,0 +1,52 @@
+name: poll feeds
+
+# Polls every source and publishes a fresh snapshot to the `deploy` branch,
+# which Cloudflare Pages serves. The snapshot never lands in main's history:
+# `deploy` is rewritten as a single commit each run.
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: poll
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Poll all sources
+        run: ./td-refresh
+
+      - name: Assemble the site
+        run: |
+          rm -rf out
+          mkdir -p out/data
+          cp threat-desk.html out/index.html
+          cp data/snapshot.json out/data/snapshot.json
+          cat > out/_headers <<'HEADERS'
+          /data/snapshot.json
+            Cache-Control: public, max-age=300
+          /index.html
+            Cache-Control: public, max-age=300
+          HEADERS
+
+      - name: Publish to the deploy branch
+        run: |
+          cd out
+          git init -q -b deploy
+          git config user.name "threat-desk bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "snapshot $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          git push -q --force \
+            "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" \
+            deploy

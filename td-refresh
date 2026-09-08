@@ -1,0 +1,226 @@
+#!/usr/bin/env python3
+"""Poll every feed listed in threat-desk.html and write a fresh snapshot.
+
+Usage:  ./td-refresh                 write data/snapshot.json (what the hosted page loads)
+        ./td-refresh --embed         instead bake the snapshot into a standalone
+                                     threat-desk.local.html, which works offline and
+                                     over file:// (the repo copy stays clean)
+        ./td-refresh --embed --open  bake it, then open it in the default browser
+        ./td-refresh --quiet         no per-feed output
+"""
+import re, sys, json, time, html, gzip, io, os
+import urllib.request, urllib.error
+from concurrent.futures import ThreadPoolExecutor
+from email.utils import parsedate_to_datetime
+from xml.etree import ElementTree as ET
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+PAGE = os.path.join(HERE, "threat-desk.html")
+LOCAL_PAGE = os.path.join(HERE, "threat-desk.local.html")   # gitignored, --embed target
+SNAPSHOT = os.path.join(HERE, "data", "snapshot.json")
+KEEP_DAYS = 14
+UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 "
+      "(KHTML, like Gecko) Version/17.0 Safari/605.1.15")
+
+quiet = "--quiet" in sys.argv
+
+
+def feeds_from_page(src):
+    """Read the FEEDS registry out of the HTML so there is one source of truth."""
+    block = src[src.index("const FEEDS = {"): src.index("\n};", src.index("const FEEDS = {"))]
+    out, cat = [], None
+    for line in block.splitlines():
+        m = re.match(r'\s*"([^"]+)":\s*\[', line)
+        if m:
+            cat = m.group(1)
+            continue
+        m = re.search(r'\{n:"([^"]+)",\s*u:"([^"]+)"\}', line)
+        if m and cat:
+            out.append({"n": m.group(1), "u": m.group(2), "cat": cat})
+    return out
+
+
+def fetch(url):
+    req = urllib.request.Request(url, headers={
+        "User-Agent": UA,
+        "Accept": "application/rss+xml, application/atom+xml, application/xml, text/xml, */*",
+        "Accept-Encoding": "gzip",
+        "Accept-Language": "en-US,en;q=0.9",
+    })
+    with urllib.request.urlopen(req, timeout=25) as r:
+        raw = r.read()
+    if raw[:2] == b"\x1f\x8b":
+        raw = gzip.GzipFile(fileobj=io.BytesIO(raw)).read()
+    return raw
+
+
+TAG = re.compile(r"<[^>]*>")
+WS = re.compile(r"\s+")
+
+
+def clean(s, n=320):
+    if not s:
+        return ""
+    s = html.unescape(TAG.sub(" ", s))
+    return WS.sub(" ", s).strip()[:n]
+
+
+def local(tag):
+    return tag.rsplit("}", 1)[-1]
+
+
+def when(s):
+    """Milliseconds since epoch, never in the future (feeds post-date webinars)."""
+    if not s:
+        return 0
+    s = s.strip()
+    try:
+        return int(parsedate_to_datetime(s).timestamp() * 1000)
+    except Exception:
+        pass
+    for f in ("%Y-%m-%dT%H:%M:%S%z", "%Y-%m-%dT%H:%M:%SZ", "%Y-%m-%dT%H:%M:%S.%fZ",
+              "%Y-%m-%d %H:%M:%S", "%Y-%m-%d"):
+        try:
+            t = time.strptime(s.replace("Z", "+0000") if f.endswith("%z") else s, f)
+            return int(time.mktime(t) * 1000)
+        except Exception:
+            continue
+    return 0
+
+
+def parse(raw, feed):
+    root = ET.fromstring(raw)
+    nodes = [e for e in root.iter() if local(e.tag) in ("item", "entry")]
+    items = []
+    for e in nodes:
+        kid = {}
+        for c in e:
+            kid.setdefault(local(c.tag), c)
+        title = clean(kid["title"].text if "title" in kid and kid["title"].text else "", 300)
+        if not title:
+            continue
+        link = ""
+        for c in e:
+            if local(c.tag) == "link":
+                link = c.get("href") or (c.text or "")
+                if c.get("rel") in (None, "alternate") and link:
+                    break
+        if not link and "guid" in kid:
+            link = (kid["guid"].text or "")
+        date = ""
+        for k in ("pubDate", "published", "updated", "date", "created"):
+            if k in kid and kid[k].text:
+                date = kid[k].text
+                break
+        summary = ""
+        for k in ("description", "summary", "content", "encoded"):
+            if k in kid and kid[k].text:
+                summary = kid[k].text
+                break
+        ts = when(date)
+        now = int(time.time() * 1000)
+        items.append({
+            "id": (feed["n"] + "|" + (link or title))[:300],
+            "title": title,
+            "link": link.strip(),
+            "ts": min(ts, now),
+            "sum": clean(summary),
+            "src": feed["n"],
+            "cat": feed["cat"],
+        })
+    if not items:
+        raise ValueError("no items")
+    return items
+
+
+def one(feed):
+    t0 = time.time()
+    try:
+        try:
+            got = parse(fetch(feed["u"]), feed)
+        except Exception:
+            time.sleep(1.5)                      # some CDNs 403 the first hit
+            got = parse(fetch(feed["u"]), feed)
+        ms = int((time.time() - t0) * 1000)
+        if not quiet:
+            print(f"  ok   {len(got):>3}  {ms:>5}ms  {feed['n']}")
+        return got, {"n": feed["n"], "cat": feed["cat"], "ok": 1,
+                     "items": len(got), "ms": ms}
+    except Exception as e:
+        msg = f"{type(e).__name__}: {e}"[:90]
+        if not quiet:
+            print(f"  FAIL             {feed['n']}  ({msg})")
+        return [], {"n": feed["n"], "cat": feed["cat"], "ok": 0,
+                    "items": 0, "ms": int((time.time() - t0) * 1000), "err": msg}
+
+
+def main():
+    src = open(PAGE).read()
+    feeds = feeds_from_page(src)
+    print(f"fetching {len(feeds)} feeds…")
+    t0 = time.time()
+    items, health = [], []
+    with ThreadPoolExecutor(max_workers=16) as ex:
+        for got, stat in ex.map(one, feeds):
+            items += got
+            health.append(stat)
+    health.sort(key=lambda h: (h["cat"], h["n"]))
+    fails = [(h["n"], h.get("err", "")) for h in health if not h["ok"]]
+    elapsed = time.time() - t0
+
+    cut = (time.time() - KEEP_DAYS * 86400) * 1000
+    items = [i for i in items if not i["ts"] or i["ts"] >= cut]
+    items.sort(key=lambda i: -i["ts"])
+
+    seen, dedup = set(), []
+    for i in items:
+        k = re.sub(r"[^a-z0-9]", "", i["title"].lower())[:70]
+        if k and k in seen:
+            continue
+        seen.add(k)
+        dedup.append(i)
+    items = dedup[:5000]
+
+    lat = sorted(h["ms"] for h in health if h["ok"]) or [0]
+    snapshot = {
+        "t": int(time.time() * 1000),
+        "items": items,
+        "health": health,
+        "poll": {
+            "sources": len(health),
+            "live": sum(h["ok"] for h in health),
+            "seconds": round(elapsed, 1),
+            "median_ms": lat[len(lat) // 2],
+            "slowest_ms": lat[-1],
+            "retain_days": KEEP_DAYS,
+        },
+    }
+    blob = json.dumps(snapshot, separators=(",", ":"), ensure_ascii=False)
+
+    if "--embed" in sys.argv:
+        # Bake into the page so the single file works offline and over file://
+        # (a file:// page cannot fetch a sibling .json — the browser blocks it).
+        wrapped = "var EMBED=" + blob.replace("</", "<\\/") + "; /*__EMBED__*/"
+        new = re.sub(r"var EMBED=.*?/\*__EMBED__\*/", lambda m: wrapped,
+                     src, count=1, flags=re.S)
+        if new == src:
+            sys.exit("could not find the EMBED placeholder in threat-desk.html")
+        open(LOCAL_PAGE, "w").write(new)
+        where, size = "threat-desk.local.html", os.path.getsize(LOCAL_PAGE)
+    else:
+        # Hosted mode: the page fetches this file same-origin on load.
+        os.makedirs(os.path.dirname(SNAPSHOT), exist_ok=True)
+        open(SNAPSHOT, "w").write(blob)
+        where, size = os.path.relpath(SNAPSHOT, HERE), os.path.getsize(SNAPSHOT)
+
+    print(f"\n{len(feeds)-len(fails)}/{len(feeds)} sources · {len(items)} items · "
+          f"{time.time()-t0:.1f}s · {where} {size/1e6:.1f} MB")
+    if fails:
+        print("failed: " + ", ".join(n for n, _ in fails))
+    if "--open" in sys.argv:
+        os.system(f'open "{LOCAL_PAGE if "--embed" in sys.argv else PAGE}"')
+    return len(fails)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,6 @@
+# Generated snapshots — the scheduled poll produces these, they are not source.
+data/
+threat-desk.local.html
+out/
+
+.DS_Store

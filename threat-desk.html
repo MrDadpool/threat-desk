@@ -1,0 +1,954 @@
+<!doctype html>
+<html lang="en" data-theme="night">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Threat Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Hallmark · genre: atmospheric · macrostructure: Stat-Led · theme: Midnight
+ * enrichment: none (typography + data only) · nav: N9 edge-aligned · footer: Ft2 inline status line
+ * tone: utilitarian-editorial · anchor hue: 40 (warm) · accent: signal amber, <3% of viewport
+ * pre-emit critique: P5 H5 E4 S5 R4 V5
+ * Every figure on this page is counted from the live snapshot. No invented metrics.
+ */
+
+:root{
+  --color-paper:    oklch(14% 0.008 40);
+  --color-paper-2:  oklch(17.5% 0.010 40);
+  --color-paper-3:  oklch(21% 0.011 40);
+  --color-rule:     oklch(28% 0.009 40);
+  --color-rule-2:   oklch(35% 0.010 40);
+  --color-muted:    oklch(58% 0.008 40);
+  --color-ink-2:    oklch(76% 0.007 45);
+  --color-ink:      oklch(95% 0.006 60);
+  --color-accent:   oklch(70% 0.175 55);
+  --color-focus:    oklch(74% 0.170 55);
+  --color-critical: oklch(66% 0.185 22);
+  --color-good:     oklch(72% 0.130 155);
+  --color-data:     oklch(66% 0.115 235);
+  --color-scrim:    oklch(10% 0.010 40 / .74);
+
+  --font-display:"Space Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --font-body:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  --text-figure:clamp(3.25rem,7vw + .5rem,6rem);
+  --text-3xl:clamp(1.5rem,2vw + .6rem,2rem);
+  --text-xl:1.125rem;
+  --text-base:.875rem;
+  --text-sm:.8125rem;
+  --text-xs:.6875rem;
+
+  --space-2xs:4px; --space-xs:8px; --space-sm:12px; --space-md:16px;
+  --space-lg:24px; --space-xl:32px; --space-2xl:48px; --space-3xl:64px;
+
+  --rule-hair:1px;
+  --radius-sm:4px; --radius-md:6px; --radius-pill:999px;
+  --ease-out:cubic-bezier(.22,.61,.36,1);
+  --ease-in-out:cubic-bezier(.4,0,.2,1);
+  --dur-fast:120ms; --dur-mid:220ms;
+}
+html[data-theme="day"]{
+  --color-paper:    oklch(97.5% 0.006 60);
+  --color-paper-2:  oklch(94.5% 0.008 60);
+  --color-paper-3:  oklch(91% 0.009 60);
+  --color-rule:     oklch(84% 0.008 60);
+  --color-rule-2:   oklch(74% 0.010 60);
+  --color-muted:    oklch(52% 0.010 55);
+  --color-ink-2:    oklch(38% 0.010 50);
+  --color-ink:      oklch(19% 0.011 45);
+  --color-accent:   oklch(54% 0.180 45);
+  --color-focus:    oklch(50% 0.180 45);
+  --color-critical: oklch(50% 0.190 25);
+  --color-good:     oklch(48% 0.120 155);
+  --color-data:     oklch(48% 0.130 240);
+  --color-scrim:    oklch(28% 0.010 55 / .55);
+}
+
+*{box-sizing:border-box}
+html,body{overflow-x:clip}
+body{
+  margin:0;background:var(--color-paper);color:var(--color-ink);
+  font:400 var(--text-base)/1.5 var(--font-body);
+  -webkit-font-smoothing:antialiased;
+  font-variant-numeric:tabular-nums;
+}
+a{color:inherit;text-decoration:none}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--color-focus);outline-offset:2px;transition:none}
+.tnum{font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:var(--font-display);font-style:normal;letter-spacing:-.025em;margin:0}
+
+.bar{position:fixed;top:0;left:0;height:2px;width:0;background:var(--color-accent);
+  z-index:99;transition:width var(--dur-mid) var(--ease-out)}
+.ctl{position:sticky;top:0;z-index:60;background:var(--color-paper);
+  border-bottom:var(--rule-hair) solid var(--color-rule);
+  display:flex;align-items:center;gap:var(--space-sm);
+  padding:var(--space-sm) var(--space-lg);flex-wrap:wrap}
+.mark{display:flex;align-items:baseline;gap:var(--space-xs);margin-right:var(--space-sm)}
+.mark b{font-family:var(--font-display);font-weight:700;font-size:var(--text-xl);
+  letter-spacing:-.03em}
+.mark span{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-muted);
+  text-transform:uppercase;letter-spacing:.08em}
+.led{width:7px;height:7px;border-radius:50%;background:var(--color-good);
+  align-self:center;margin-right:2px}
+.led[data-s="busy"]{background:var(--color-accent)}
+.led[data-s="err"]{background:var(--color-critical)}
+
+input[type=search]{background:var(--color-paper-2);border:var(--rule-hair) solid var(--color-rule);
+  border-radius:var(--radius-md);padding:7px 10px;min-width:180px;flex:1 1 180px;max-width:300px;
+  outline:none;transition:border-color var(--dur-fast) var(--ease-out)}
+input[type=search]::placeholder{color:var(--color-muted)}
+input[type=search]:hover{border-color:var(--color-rule-2)}
+select,.btn{background:var(--color-paper-2);border:var(--rule-hair) solid var(--color-rule);
+  border-radius:var(--radius-md);padding:7px 10px;cursor:pointer;white-space:nowrap;
+  font-size:var(--text-sm);
+  transition:border-color var(--dur-fast) var(--ease-out),background var(--dur-fast) var(--ease-out)}
+.btn:hover,select:hover{border-color:var(--color-rule-2);background:var(--color-paper-3)}
+.btn:active{transform:translateY(1px)}
+.btn[aria-pressed="true"]{border-color:var(--color-accent);color:var(--color-accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.grow{flex:1}
+
+.rail{position:sticky;top:52px;z-index:50;background:var(--color-paper);
+  border-bottom:var(--rule-hair) solid var(--color-rule);
+  display:flex;gap:var(--space-2xs);padding:var(--space-xs) var(--space-lg);
+  overflow-x:auto;scrollbar-width:none}
+.rail::-webkit-scrollbar{display:none}
+.tab{background:none;border:var(--rule-hair) solid transparent;border-radius:var(--radius-pill);
+  padding:5px 11px;color:var(--color-ink-2);font-size:var(--text-sm);font-weight:500;
+  white-space:nowrap;cursor:pointer;
+  transition:color var(--dur-fast) var(--ease-out),border-color var(--dur-fast) var(--ease-out)}
+.tab:hover{color:var(--color-ink);border-color:var(--color-rule)}
+.tab[aria-selected="true"]{color:var(--color-ink);border-color:var(--color-rule-2);
+  background:var(--color-paper-2)}
+.tab i{font-style:normal;font-family:var(--font-mono);font-size:var(--text-xs);
+  color:var(--color-muted);margin-left:6px}
+
+.deck{padding:var(--space-2xl) var(--space-lg) var(--space-xl);
+  max-width:1560px;margin:0 auto;
+  border-bottom:var(--rule-hair) solid var(--color-rule)}
+.lede{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);
+  gap:var(--space-xl) var(--space-2xl);align-items:end}
+.figure{font-family:var(--font-display);font-weight:700;font-size:var(--text-figure);
+  line-height:.86;letter-spacing:-.045em;font-variant-numeric:tabular-nums;
+  overflow-wrap:anywhere;min-width:0}
+.claim{font-family:var(--font-display);font-weight:500;font-size:var(--text-3xl);
+  line-height:1.15;max-width:34ch;overflow-wrap:anywhere;min-width:0}
+.claim b{font-weight:700}
+.qual{color:var(--color-ink-2);margin-top:var(--space-sm);max-width:58ch;font-size:var(--text-base)}
+.qual code{font-family:var(--font-mono);font-size:.8125rem;color:var(--color-ink);
+  background:var(--color-paper-2);padding:1px 5px;border-radius:var(--radius-sm)}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  margin-top:var(--space-2xl);border-top:var(--rule-hair) solid var(--color-rule)}
+.kpi{padding:var(--space-md) var(--space-lg) var(--space-md) 0;
+  border-right:var(--rule-hair) solid var(--color-rule)}
+.kpi:last-child{border-right:0}
+.kpi dt{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-muted);
+  text-transform:uppercase;letter-spacing:.09em;margin-bottom:var(--space-xs)}
+.kpi dd{margin:0;font-family:var(--font-display);font-weight:600;font-size:1.75rem;
+  line-height:1;letter-spacing:-.03em}
+.kpi dd small{font-size:.8125rem;font-weight:500;color:var(--color-muted);
+  font-family:var(--font-mono);margin-left:5px;letter-spacing:0}
+.kpi.alarm dd{color:var(--color-critical)}
+
+.plots{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);
+  gap:var(--space-2xl);margin-top:var(--space-2xl)}
+.plot h3{font-family:var(--font-mono);font-weight:500;font-size:var(--text-xs);
+  color:var(--color-muted);text-transform:uppercase;letter-spacing:.09em;
+  margin-bottom:var(--space-md)}
+.plot h3 b{color:var(--color-ink-2);font-weight:500}
+.plot svg{display:block;width:100%;height:auto;overflow:visible}
+.gridline{stroke:var(--color-rule);stroke-width:1}
+.col{fill:var(--color-data)}
+.col.peak{fill:var(--color-accent)}
+.axis{fill:var(--color-muted);font-family:var(--font-mono);font-size:9px}
+.vlabel{fill:var(--color-ink-2);font-family:var(--font-mono);font-size:9.5px}
+.catrow{display:grid;grid-template-columns:104px minmax(0,1fr) 44px;
+  align-items:center;gap:var(--space-sm);padding:5px 0;font-size:var(--text-sm)}
+.catrow span:first-child{color:var(--color-ink-2);overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+.track{height:9px;background:var(--color-paper-2);border-radius:var(--radius-sm);overflow:hidden}
+.track i{display:block;height:100%;background:var(--color-data);
+  border-radius:0 var(--radius-sm) var(--radius-sm) 0}
+.catrow b{font-family:var(--font-mono);font-weight:500;text-align:right;
+  color:var(--color-ink-2);font-size:var(--text-xs)}
+
+main{max-width:1560px;margin:0 auto;padding:0 var(--space-lg) var(--space-3xl)}
+.daymark{display:flex;align-items:center;gap:var(--space-md);
+  margin:var(--space-xl) 0 var(--space-2xs);padding-top:var(--space-sm)}
+.daymark h2{font-family:var(--font-mono);font-weight:500;font-size:var(--text-xs);
+  color:var(--color-muted);text-transform:uppercase;letter-spacing:.11em}
+.daymark hr{flex:1;border:0;border-top:var(--rule-hair) solid var(--color-rule);margin:0}
+.daymark em{font-style:normal;font-family:var(--font-mono);font-size:var(--text-xs);
+  color:var(--color-muted)}
+
+.row{display:grid;grid-template-columns:22px 52px minmax(0,1fr) auto 196px;
+  align-items:baseline;gap:var(--space-md);
+  padding:9px var(--space-xs);border-bottom:var(--rule-hair) solid var(--color-rule);
+  transition:background var(--dur-fast) var(--ease-out)}
+.row:hover{background:var(--color-paper-2)}
+.row.seen .head,.row.seen .src{color:var(--color-muted)}
+.pin{background:none;border:0;padding:0;cursor:pointer;color:var(--color-rule-2);
+  font-size:.75rem;line-height:1;align-self:center;
+  transition:color var(--dur-fast) var(--ease-out)}
+.pin:hover{color:var(--color-ink-2)}
+.pin[aria-pressed="true"]{color:var(--color-accent)}
+.when{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-muted);
+  text-align:right}
+.head{font-weight:450;min-width:0;overflow-wrap:anywhere}
+.head a{transition:color var(--dur-fast) var(--ease-out)}
+.head a:hover{color:var(--color-accent)}
+.gist{display:none;color:var(--color-ink-2);font-size:var(--text-sm);
+  margin-top:var(--space-2xs);max-width:88ch}
+.row.open .gist{display:block}
+.cve{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-critical);
+  border:var(--rule-hair) solid var(--color-critical);border-radius:var(--radius-sm);
+  padding:1px 5px;white-space:nowrap}
+.src{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-ink-2);
+  text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.src i{font-style:normal;color:var(--color-muted)}
+.dot{display:inline-block;width:5px;height:5px;border-radius:50%;
+  background:var(--color-accent);margin-right:6px;vertical-align:middle}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:var(--space-md);margin-top:var(--space-lg)}
+.panel{background:var(--color-paper-2);border:var(--rule-hair) solid var(--color-rule);
+  border-radius:var(--radius-md);display:flex;flex-direction:column;max-height:440px}
+.panel header{display:flex;justify-content:space-between;align-items:baseline;
+  gap:var(--space-xs);padding:10px var(--space-sm);
+  border-bottom:var(--rule-hair) solid var(--color-rule)}
+.panel header h3{font-size:var(--text-sm);font-weight:600;letter-spacing:-.01em;
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.panel header span{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-muted)}
+.panel ul{list-style:none;margin:0;padding:var(--space-2xs) 0;overflow-y:auto}
+.panel li{padding:7px var(--space-sm);border-bottom:var(--rule-hair) solid var(--color-rule);
+  font-size:var(--text-sm);line-height:1.35}
+.panel li:last-child{border-bottom:0}
+.panel li:hover{background:var(--color-paper-3)}
+.panel li p{margin:3px 0 0;font-family:var(--font-mono);font-size:var(--text-xs);
+  color:var(--color-muted)}
+
+.void{color:var(--color-muted);padding:var(--space-3xl) var(--space-lg);text-align:center}
+.void b{display:block;font-family:var(--font-display);font-size:var(--text-xl);
+  color:var(--color-ink-2);margin-bottom:var(--space-xs)}
+
+.status{position:sticky;bottom:0;z-index:55;background:var(--color-paper);
+  border-top:var(--rule-hair) solid var(--color-rule);
+  display:flex;gap:var(--space-lg);flex-wrap:wrap;
+  padding:var(--space-xs) var(--space-lg);
+  font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-muted)}
+.status b{color:var(--color-ink-2);font-weight:500}
+.status .fail{color:var(--color-critical)}
+
+dialog{background:var(--color-paper);color:var(--color-ink);
+  border:var(--rule-hair) solid var(--color-rule-2);border-radius:var(--radius-md);
+  max-width:660px;width:min(94vw,660px);padding:0}
+dialog::backdrop{background:var(--color-scrim)}
+dialog header{display:flex;justify-content:space-between;align-items:center;gap:var(--space-md);
+  padding:var(--space-sm) var(--space-md);border-bottom:var(--rule-hair) solid var(--color-rule)}
+dialog header h3{font-size:var(--text-base)}
+dialog .scroll{padding:var(--space-md);max-height:62vh;overflow:auto}
+.feedrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--space-md);
+  align-items:start;padding:7px 0;border-bottom:var(--rule-hair) solid var(--color-rule)}
+.feedrow label{display:flex;gap:var(--space-xs);align-items:baseline;cursor:pointer;
+  font-size:var(--text-sm)}
+.feedrow .u{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-muted);
+  word-break:break-all;margin-top:2px;padding-left:22px}
+.feedrow .stat{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-muted);
+  white-space:nowrap;text-align:right}
+.feedrow .stat.bad{color:var(--color-critical)}
+.catmark{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-accent);
+  text-transform:uppercase;letter-spacing:.1em;margin:var(--space-md) 0 var(--space-2xs)}
+kbd{font-family:var(--font-mono);font-size:var(--text-xs);background:var(--color-paper-2);
+  border:var(--rule-hair) solid var(--color-rule);border-radius:var(--radius-sm);padding:1px 5px}
+
+@media (max-width:1080px){
+  .plots{grid-template-columns:minmax(0,1fr)}
+  .lede{grid-template-columns:minmax(0,1fr);align-items:start}
+}
+@media (max-width:720px){
+  .ctl,.rail,.status,main,.deck{padding-left:var(--space-md);padding-right:var(--space-md)}
+  .ctl{gap:var(--space-xs) var(--space-2xs);padding-top:var(--space-xs);
+    padding-bottom:var(--space-xs)}
+  .ctl .btn,.ctl select{padding:6px 9px;font-size:var(--text-xs)}
+  .mark{width:100%;margin-right:0}
+  input[type=search]{max-width:none;flex-basis:100%}
+  .rail{position:static}
+  .status{position:static}
+  .deck{padding-top:var(--space-xl)}
+  .row{grid-template-columns:20px 46px minmax(0,1fr);row-gap:var(--space-2xs)}
+  .row .cve{grid-column:2;justify-self:start}
+  .row .src{grid-column:3;text-align:left;justify-self:start}
+  .gist{display:none!important}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 var(--space-md)}
+  .kpi{border-right:0;border-bottom:var(--rule-hair) solid var(--color-rule);padding-right:0}
+  .status{gap:var(--space-sm)}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:60ms!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+<div class="bar" id="bar" aria-hidden="true"></div>
+
+<div class="ctl">
+  <div class="mark"><span class="led" id="led" title="poll status"></span>
+    <b>Threat&nbsp;Desk</b><span id="opline">signals desk</span></div>
+  <input type="search" id="q" placeholder="Filter headlines" aria-label="Filter headlines">
+  <select id="win" aria-label="Time window">
+    <option value="6">6 hours</option>
+    <option value="24" selected>24 hours</option>
+    <option value="72">3 days</option>
+    <option value="168">7 days</option>
+    <option value="0">Everything retained</option>
+  </select>
+  <select id="view" aria-label="Layout">
+    <option value="river">River</option>
+    <option value="grid">By source</option>
+  </select>
+  <button class="btn" id="unseen" aria-pressed="false">Unread</button>
+  <button class="btn" id="pinned" aria-pressed="false">Pinned</button>
+  <div class="grow"></div>
+  <button class="btn" id="markall">Mark read</button>
+  <button class="btn" id="poll">Poll now</button>
+  <button class="btn" id="srcbtn">Sources</button>
+  <button class="btn" id="lights" aria-label="Toggle light and dark">Lights</button>
+</div>
+
+<nav class="rail" id="rail" role="tablist" aria-label="Coverage domains"></nav>
+
+<section class="deck" aria-label="Coverage summary">
+  <div class="lede">
+    <div class="figure tnum" id="figure">&mdash;</div>
+    <div>
+      <h1 class="claim" id="claim">Headlines pulled since the last poll.</h1>
+      <p class="qual" id="qual"></p>
+    </div>
+  </div>
+  <dl class="kpis" id="kpis"></dl>
+  <div class="plots">
+    <div class="plot"><h3 id="volh">Arrival volume</h3><div id="vol"></div></div>
+    <div class="plot"><h3 id="cath">Coverage by domain</h3><div id="cat"></div></div>
+  </div>
+</section>
+
+<main id="out"><div class="void"><b>Loading snapshot&hellip;</b></div></main>
+
+<footer class="status" id="status"></footer>
+
+<dialog id="dlg" aria-label="Source inventory">
+  <header><h3>Source inventory <span id="dcount"></span></h3>
+    <button class="btn" id="dclose">Close</button></header>
+  <div class="scroll" id="dbody"></div>
+</dialog>
+
+<script>
+const FEEDS = {
+  "Cyber News": [
+    {n:"Krebs on Security", u:"https://krebsonsecurity.com/feed/"},
+    {n:"BleepingComputer", u:"https://www.bleepingcomputer.com/feed/"},
+    {n:"The Hacker News", u:"https://feeds.feedburner.com/TheHackersNews"},
+    {n:"The Record", u:"https://therecord.media/feed"},
+    {n:"SecurityWeek", u:"https://www.securityweek.com/feed/"},
+    {n:"Dark Reading", u:"https://www.darkreading.com/rss.xml"},
+    {n:"Schneier on Security", u:"https://www.schneier.com/feed/atom/"},
+    {n:"Graham Cluley", u:"https://grahamcluley.com/feed/"},
+    {n:"Risky Business News", u:"https://news.risky.biz/feed/"},
+    {n:"SANS Internet Storm Center", u:"https://isc.sans.edu/rssfeed_full.xml"},
+    {n:"Ars Technica Security", u:"https://arstechnica.com/security/feed/"},
+    {n:"Help Net Security", u:"https://www.helpnetsecurity.com/feed/"},
+    {n:"Infosecurity Magazine", u:"https://www.infosecurity-magazine.com/rss/news/"},
+    {n:"CyberScoop", u:"https://cyberscoop.com/feed/"},
+    {n:"Malwarebytes Labs", u:"https://www.malwarebytes.com/blog/feed/index.xml"},
+    {n:"Sophos News", u:"https://feeds.feedburner.com/sophos/dgdY"},
+    {n:"Google Project Zero", u:"https://googleprojectzero.blogspot.com/feeds/posts/default"},
+    {n:"Unit 42 (Palo Alto)", u:"https://unit42.paloaltonetworks.com/feed/"},
+    {n:"Cisco Talos", u:"https://blog.talosintelligence.com/rss/"},
+    {n:"Microsoft Security Blog", u:"https://www.microsoft.com/en-us/security/blog/feed/"},
+    {n:"Rapid7", u:"https://blog.rapid7.com/rss/"},
+    {n:"Securelist (Kaspersky)", u:"https://securelist.com/feed/"},
+    {n:"CrowdStrike Blog", u:"https://www.crowdstrike.com/en-us/blog/feed"},
+    {n:"ESET WeLiveSecurity", u:"https://www.welivesecurity.com/en/rss/feed/"},
+    {n:"Bitdefender Labs", u:"https://www.bitdefender.com/blog/api/rss/labs/"},
+    {n:"Tenable Blog", u:"https://www.tenable.com/blog/feed"},
+    {n:"Wiz Blog", u:"https://www.wiz.io/feed/rss.xml"},
+    {n:"Qualys Blog", u:"https://blog.qualys.com/feed"},
+    {n:"Citizen Lab", u:"https://citizenlab.ca/feed/"},
+    {n:"Have I Been Pwned", u:"https://feeds.feedburner.com/haveibeenpwnedlatestbreaches"}
+  ],
+  "Alerts & CVEs": [
+    {n:"CISA All Advisories", u:"https://www.cisa.gov/cybersecurity-advisories/all.xml"},
+    {n:"CISA Cybersecurity Advisories", u:"https://www.cisa.gov/cybersecurity-advisories/cybersecurity-advisories.xml"},
+    {n:"CISA ICS Advisories", u:"https://www.cisa.gov/cybersecurity-advisories/ics-advisories.xml"},
+    {n:"NCSC UK", u:"https://www.ncsc.gov.uk/api/1/services/v1/report-rss-feed.xml"},
+    {n:"CVE Feed (latest)", u:"https://cvefeed.io/rssfeed/latest.xml"},
+    {n:"Zero Day Initiative (published)", u:"https://www.zerodayinitiative.com/rss/published/"},
+    {n:"Zero Day Initiative (upcoming)", u:"https://www.zerodayinitiative.com/rss/upcoming/"},
+    {n:"Full Disclosure", u:"https://seclists.org/rss/fulldisclosure.rss"},
+    {n:"Exploit-DB", u:"https://www.exploit-db.com/rss.xml"},
+    {n:"Ubuntu Security Notices", u:"https://ubuntu.com/security/notices/rss.xml"},
+    {n:"MSRC Update Guide", u:"https://api.msrc.microsoft.com/update-guide/rss"},
+    {n:"Apple OS & Security Releases", u:"https://developer.apple.com/news/releases/rss/releases.rss"}
+  ],
+  "SysAdmin & Ops": [
+    {n:"The Register", u:"https://www.theregister.com/headlines.atom"},
+    {n:"Ars Technica IT", u:"https://feeds.arstechnica.com/arstechnica/technology-lab"},
+    {n:"Hacker News", u:"https://hnrss.org/frontpage"},
+    {n:"Cloudflare Blog", u:"https://blog.cloudflare.com/rss/"},
+    {n:"AWS News", u:"https://aws.amazon.com/blogs/aws/feed/"},
+    {n:"Google Cloud Blog", u:"https://cloudblog.withgoogle.com/rss/"},
+    {n:"Kubernetes Blog", u:"https://kubernetes.io/feed.xml"},
+    {n:"Docker Blog", u:"https://www.docker.com/blog/feed/"},
+    {n:"IT Notes", u:"https://it-notes.dragas.net/index.xml"},
+    {n:"ServeTheHome", u:"https://www.servethehome.com/feed/"},
+    {n:"Last Week in AWS", u:"https://www.lastweekinaws.com/feed/"},
+    {n:"Practical 365", u:"https://practical365.com/feed/"},
+    {n:"4sysops", u:"https://4sysops.com/feed/"},
+    {n:"Petri IT Knowledgebase", u:"https://petri.com/feed/"}
+  ],
+  "Microsoft": [
+    {n:"Microsoft 365 Blog", u:"https://www.microsoft.com/en-us/microsoft-365/blog/feed/"},
+    {n:"Windows Blogs", u:"https://blogs.windows.com/feed"},
+    {n:"Windows Insider", u:"https://blogs.windows.com/windows-insider/feed/"},
+    {n:"Windows IT Pro Blog", u:"https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=Windows-ITPro-Blog"},
+    {n:"Azure Updates", u:"https://www.microsoft.com/releasecommunications/api/v2/azure/rss"},
+    {n:"Microsoft 365 Roadmap", u:"https://www.microsoft.com/releasecommunications/api/v2/m365/rss"},
+    {n:"Microsoft Dev Blogs", u:"https://devblogs.microsoft.com/feed/"},
+    {n:"PowerShell Team", u:"https://devblogs.microsoft.com/powershell/feed/"},
+    {n:"Azure Infrastructure Blog", u:"https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=AzureInfrastructureBlog"},
+    {n:"Neowin", u:"https://www.neowin.net/news/rss/"},
+    {n:"Windows Central", u:"https://www.windowscentral.com/rss"}
+  ],
+  "Apple": [
+    {n:"Apple Newsroom", u:"https://www.apple.com/newsroom/rss-feed.rss"},
+    {n:"Apple Developer News", u:"https://developer.apple.com/news/rss/news.rss"},
+    {n:"Apple OS & Security Releases", u:"https://developer.apple.com/news/releases/rss/releases.rss"},
+    {n:"9to5Mac", u:"https://9to5mac.com/feed/"},
+    {n:"MacRumors", u:"https://feeds.macrumors.com/MacRumors-All"},
+    {n:"AppleInsider", u:"https://appleinsider.com/rss/news/"},
+    {n:"Six Colors", u:"https://sixcolors.com/feed/"},
+    {n:"Daring Fireball", u:"https://daringfireball.net/feeds/main"},
+    {n:"The Eclectic Light Company", u:"https://eclecticlight.co/feed/"},
+    {n:"Mr. Macintosh", u:"https://mrmacintosh.com/feed/"},
+    {n:"Michael Tsai", u:"https://mjtsai.com/blog/feed/"}
+  ],
+  "AI": [
+    {n:"OpenAI", u:"https://openai.com/news/rss.xml"},
+    {n:"Google DeepMind", u:"https://deepmind.google/blog/rss.xml"},
+    {n:"Google AI", u:"https://blog.google/technology/ai/rss/"},
+    {n:"Hugging Face", u:"https://huggingface.co/blog/feed.xml"},
+    {n:"Simon Willison", u:"https://simonwillison.net/atom/everything/"},
+    {n:"Import AI", u:"https://importai.substack.com/feed"},
+    {n:"Latent Space", u:"https://www.latent.space/feed"},
+    {n:"Ahead of AI", u:"https://magazine.sebastianraschka.com/feed"},
+    {n:"MIT Tech Review AI", u:"https://www.technologyreview.com/topic/artificial-intelligence/feed"},
+    {n:"The Verge AI", u:"https://www.theverge.com/rss/ai-artificial-intelligence/index.xml"},
+    {n:"Ars Technica AI", u:"https://arstechnica.com/ai/feed/"},
+    {n:"Microsoft Research", u:"https://www.microsoft.com/en-us/research/feed/"},
+    {n:"NVIDIA Blog", u:"https://blogs.nvidia.com/feed/"},
+    {n:"arXiv cs.AI", u:"https://export.arxiv.org/api/query?search_query=cat:cs.AI&sortBy=submittedDate&sortOrder=descending&max_results=40"},
+    {n:"arXiv cs.CR", u:"https://export.arxiv.org/api/query?search_query=cat:cs.CR&sortBy=submittedDate&sortOrder=descending&max_results=40"}
+  ]
+};var EMBED={t:0,items:[],health:[],poll:null}; /*__EMBED__*/
+
+/* ── operator label ────────────────────────────────────────────────
+   Put your name between the quotes and it appears in the masthead and
+   the status line. Left blank, the desk just reads "signals desk".   */
+const OPERATOR = "";
+
+const LS={seen:'td.seen',pin:'td.pin',off:'td.off',cache:'td.cache',
+          lights:'td.lights',tab:'td.tab',view:'td.view'};
+const load=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}};
+const save=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+
+let seen=new Set(load(LS.seen,[]));
+let pin=new Map(load(LS.pin,[]));
+let off=new Set(load(LS.off,[]));
+let items=[], health=[], poll=null, stamp=0;
+let feedState={};
+let tab=load(LS.tab,'ALL'), unseenOnly=false, pinnedOnly=false;
+
+const CATS=Object.keys(FEEDS);
+const ALLFEEDS=CATS.flatMap(c=>FEEDS[c].map(f=>({...f,cat:c})));
+const el=id=>document.getElementById(id);
+const CVE=/CVE-\d{4}-\d{4,7}/i;
+/* short domain codes so the source column stays one dense line */
+const CODE={'Cyber News':'CYB','Alerts & CVEs':'ADV','SysAdmin & Ops':'OPS',
+            'Microsoft':'MS','Apple':'APL','AI':'AI'};
+const code=c=>CODE[c]||c.slice(0,3).toUpperCase();
+
+const PROXIES=[u=>u,u=>'https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(u)];
+const T=(u,ms=9000)=>fetch(u,{redirect:'follow',signal:AbortSignal.timeout(ms)});
+
+async function grab(url){
+  let lastErr='';
+  for(const p of PROXIES){
+    const target=p(url);
+    try{
+      const r=await T(target);
+      if(!r.ok){lastErr='HTTP '+r.status;continue}
+      const t=await r.text();
+      if(t.length<80){lastErr='empty';continue}
+      if(target.includes('rss2json')){
+        const j=JSON.parse(t);
+        if(j.status!=='ok'){lastErr=(j.message||'rss2json error').slice(0,60);continue}
+        return {json:j};
+      }
+      return t;
+    }catch(e){lastErr=(e.name==='TimeoutError'?'timeout':e.message)||'fetch failed'}
+  }
+  throw new Error(lastErr||'unreachable');
+}
+
+const pickText=(e,...names)=>{
+  for(const n of names){const x=e.querySelector(n);if(x&&x.textContent.trim())return x.textContent.trim()}
+  return '';
+};
+function linkOf(e){
+  const a=[...e.querySelectorAll('link')];
+  const alt=a.find(l=>l.getAttribute('rel')==='alternate'&&l.getAttribute('href'));
+  if(alt)return alt.getAttribute('href');
+  const h=a.find(l=>l.getAttribute('href'));
+  if(h)return h.getAttribute('href');
+  const t=a.find(l=>l.textContent.trim());
+  return t?t.textContent.trim():pickText(e,'guid');
+}
+const strip=s=>s.replace(/<[^>]*>/g,' ').replace(/&[a-z#0-9]+;/gi,' ').replace(/\s+/g,' ').trim();
+
+function parse(raw,feed){
+  if(raw&&raw.json)
+    return (raw.json.items||[]).map(i=>mk(i.title,i.link,i.pubDate,i.description,feed));
+  const doc=new DOMParser().parseFromString(raw,'text/xml');
+  const nodes=[...doc.querySelectorAll('item,entry')];
+  if(!nodes.length)throw new Error('no items');
+  return nodes.map(e=>node(e,feed)).filter(Boolean);
+}
+function node(e,feed){
+  const title=pickText(e,'title');
+  if(!title)return null;
+  return mk(title,linkOf(e),pickText(e,'pubDate','published','updated','date'),
+            pickText(e,'description','summary','content'),feed);
+}
+function mk(title,link,date,gist,feed){
+  let t=Date.parse(date||'')||0;
+  if(t>Date.now())t=Date.now();
+  return {id:(feed.n+'|'+(link||title)).slice(0,300),title:strip(title).slice(0,300),
+          link:link||'',ts:t,sum:strip(gist||'').slice(0,320),src:feed.n,cat:feed.cat};
+}
+
+let polling=false;
+async function repoll(){
+  if(polling)return;
+  polling=true;
+  el('poll').disabled=true;
+  const active=ALLFEEDS.filter(f=>!off.has(f.u));
+  const queue=[...active];
+  let done=0,ok=0;
+  const t0=Date.now();
+  el('led').dataset.s='busy';
+  const worker=async()=>{
+    while(queue.length){
+      const f=queue.shift();
+      try{
+        const got=parse(await grab(f.u),f);
+        items=items.filter(i=>i.src!==f.n).concat(got);
+        feedState[f.n]={ok:1,items:got.length};ok++;
+      }catch(e){feedState[f.n]={ok:0,err:e.message}}
+      done++;
+      el('bar').style.width=(done/active.length*100)+'%';
+      el('status').innerHTML='<span>polling <b>'+done+'</b>/'+active.length+' sources…</span>';
+      if(done%6===0)draw();
+    }
+  };
+  await Promise.all(Array.from({length:8},worker));
+  dedupe();
+  health=active.map(f=>({n:f.n,cat:f.cat,ok:feedState[f.n]&&feedState[f.n].ok?1:0,
+                         items:(feedState[f.n]||{}).items||0,ms:0,
+                         err:(feedState[f.n]||{}).err||''}));
+  poll={sources:active.length,live:ok,seconds:+((Date.now()-t0)/1000).toFixed(1),
+        median_ms:0,retain_days:14,browser:1};
+  stamp=Date.now();
+  save(LS.cache,{t:stamp,items:items.slice(0,4000),health,poll});
+  el('led').dataset.s=ok?'':'err';
+  el('bar').style.width='0';
+  el('poll').disabled=false;
+  polling=false;
+  draw();
+}
+function dedupe(){
+  const keys=new Set(),out=[];
+  for(const i of items.sort((a,b)=>b.ts-a.ts)){
+    const k=i.title.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,70);
+    if(k&&keys.has(k))continue;
+    keys.add(k);out.push(i);
+  }
+  items=out;
+}
+
+const hours=()=>+el('win').value;
+const windowStart=()=>{const h=hours();return h?Date.now()-h*36e5:0};
+function inWindow(){
+  const cut=windowStart();
+  return items.filter(i=>!cut||!i.ts||i.ts>=cut);
+}
+function visible(){
+  const q=el('q').value.trim().toLowerCase();
+  const cut=windowStart();
+  const list=pinnedOnly?[...pin.values()]:items;
+  return list.filter(i=>{
+    if(tab!=='ALL'&&i.cat!==tab)return false;
+    if(!pinnedOnly&&cut&&i.ts&&i.ts<cut)return false;
+    if(unseenOnly&&seen.has(i.id))return false;
+    if(q&&!(i.title+' '+i.src+' '+i.sum).toLowerCase().includes(q))return false;
+    return true;
+  }).sort((a,b)=>b.ts-a.ts);
+}
+const num=n=>n.toLocaleString('en-US');
+const ago=ts=>{
+  if(!ts)return '—';
+  const m=(Date.now()-ts)/6e4;
+  if(m<1)return 'now';
+  if(m<60)return Math.round(m)+'m';
+  if(m<48*60)return Math.round(m/60)+'h';
+  return Math.round(m/1440)+'d';
+};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ── masthead: lead figure, worded claim, counted KPIs ─────────── */
+const WORDS={6:'six hours',24:'twenty-four hours',72:'three days',168:'seven days'};
+
+function masthead(){
+  const win=inWindow();
+  const h=hours();
+  const cves=new Set();
+  for(const i of win){const m=i.title.match(CVE);if(m)cves.add(m[0].toUpperCase())}
+  const advisories=win.filter(i=>i.cat==='Alerts & CVEs').length;
+  const live=poll?poll.live:health.filter(x=>x.ok).length;
+  const total=poll?poll.sources:ALLFEEDS.length-off.size;
+  const age=stamp?Math.round((Date.now()-stamp)/6e4):0;
+
+  if(!ticking)el('figure').textContent=num(win.length);
+  el('claim').innerHTML='Headlines across <b>'+total+' sources</b>, '+
+    (h?'last '+WORDS[h]:'all retained')+'.';
+
+  const parts=[];
+  if(poll){
+    parts.push('Polled in <code>'+poll.seconds+'s</code>');
+    if(poll.median_ms)parts.push('median <code>'+poll.median_ms+'ms</code> per source');
+    if(poll.browser)parts.push('via in-browser relay');
+  }
+  parts.push(num(items.length)+' items retained over '+(poll?poll.retain_days:14)+' days');
+  el('qual').innerHTML=parts.join(' · ')+'. Re-poll with <code>./td-refresh</code>'+
+    (OPERATOR?' — desk operated by '+esc(OPERATOR):'')+'.';
+  el('opline').textContent=OPERATOR?OPERATOR.toUpperCase():'signals desk';
+
+  el('kpis').innerHTML=[
+    ['in window',num(win.length),'headlines',''],
+    ['cve ids seen',num(cves.size),'distinct',cves.size?'alarm':''],
+    ['advisories',num(advisories),'items',''],
+    ['sources live',live+'<small>/'+total+'</small>','',live<total?'alarm':''],
+    ['snapshot age',age<1?'&lt;1':num(age),'min old','']
+  ].map(function(r){
+    return '<div class="kpi '+r[3]+'"><dt>'+r[0]+'</dt><dd>'+r[1]+
+           (r[2]?'<small>'+r[2]+'</small>':'')+'</dd></div>';
+  }).join('');
+
+  volume(win);
+  domains(win);
+}
+
+/* Arrival volume — one series, magnitude over time. No legend (the title
+   names the series); the peak column carries the accent; 2px surface gap. */
+function volume(win){
+  const h=hours()||168;
+  const buckets=h<=24?h:(h<=72?24:14);
+  const span=h<=72?h*36e5/buckets:864e5;
+  const now=Date.now();
+  const counts=new Array(buckets).fill(0);
+  for(const i of win){
+    if(!i.ts)continue;
+    const b=Math.floor((now-i.ts)/span);
+    if(b>=0&&b<buckets)counts[buckets-1-b]++;
+  }
+  const max=Math.max.apply(null,counts.concat([1]));
+  const W=720,H=150,padT=14,padB=18;
+  const plotH=H-padT-padB, slot=W/buckets;
+  const bw=Math.min(24,Math.max(3,slot-2));
+  const base=padT+plotH;
+  const every=buckets>14?Math.ceil(buckets/6):Math.ceil(buckets/8);
+  let bars='',labels='';
+  counts.forEach(function(c,n){
+    const bh=c/max*plotH;
+    const x=n*slot+(slot-bw)/2, y=base-bh, r=Math.min(4,bh/2);
+    bars+='<path class="col'+(c===max?' peak':'')+'" d="M'+x.toFixed(1)+' '+base.toFixed(1)+
+          'V'+(y+r).toFixed(1)+'a'+r.toFixed(1)+' '+r.toFixed(1)+' 0 0 1 '+r.toFixed(1)+' -'+r.toFixed(1)+
+          'h'+(bw-2*r).toFixed(1)+'a'+r.toFixed(1)+' '+r.toFixed(1)+' 0 0 1 '+r.toFixed(1)+' '+r.toFixed(1)+
+          'V'+base.toFixed(1)+'Z"><title>'+c+' item'+(c===1?'':'s')+' · '+
+          bucketLabel(n,buckets,span,now)+'</title></path>';
+    if(n%every===0||n===buckets-1)
+      labels+='<text class="axis" x="'+(x+bw/2).toFixed(1)+'" y="'+(H-5)+
+              '" text-anchor="middle">'+bucketTick(n,buckets,span,now)+'</text>';
+  });
+  el('volh').innerHTML='Arrival volume <b>· '+buckets+' buckets · peak '+max+' per '+
+    (span>=864e5?'day':(span/36e5).toFixed(0)+'h')+'</b>';
+  el('vol').innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Arrival volume, '+
+    buckets+' buckets, peak '+max+'">'+
+    '<line class="gridline" x1="0" y1="'+padT+'" x2="'+W+'" y2="'+padT+'"></line>'+
+    '<line class="gridline" x1="0" y1="'+base+'" x2="'+W+'" y2="'+base+'"></line>'+
+    '<text class="vlabel" x="2" y="'+(padT-4)+'">'+max+'</text>'+bars+labels+'</svg>';
+}
+function bucketDate(n,buckets,span,now){return new Date(now-(buckets-1-n)*span)}
+function bucketLabel(n,buckets,span,now){
+  const d=bucketDate(n,buckets,span,now);
+  return span>=864e5?d.toLocaleDateString('en-US',{month:'short',day:'numeric'})
+                    :d.toLocaleTimeString('en-US',{hour:'numeric'});
+}
+function bucketTick(n,buckets,span,now){
+  const d=bucketDate(n,buckets,span,now);
+  return span>=864e5?(d.getMonth()+1)+'/'+d.getDate()
+                    :String(d.getHours()).padStart(2,'0')+':00';
+}
+
+/* Coverage by domain — magnitude by category, every bar directly labelled. */
+function domains(win){
+  const rows=CATS.map(c=>[c,win.filter(i=>i.cat===c).length]).sort((a,b)=>b[1]-a[1]);
+  const max=Math.max.apply(null,rows.map(r=>r[1]).concat([1]));
+  const feeds=CATS.reduce((n,c)=>n+FEEDS[c].length,0);
+  el('cath').innerHTML='Coverage by domain <b>· '+CATS.length+' domains · '+feeds+' feeds</b>';
+  el('cat').innerHTML=rows.map(function(r){
+    return '<div class="catrow" title="'+esc(r[0])+' · '+num(r[1])+' in window">'+
+      '<span>'+esc(r[0])+'</span>'+
+      '<div class="track"><i style="width:'+(r[1]/max*100).toFixed(1)+'%"></i></div>'+
+      '<b>'+num(r[1])+'</b></div>';
+  }).join('');
+}
+
+/* ── the river ─────────────────────────────────────────────────── */
+function rowHTML(i){
+  const cve=(i.title.match(CVE)||[])[0];
+  const alert=i.cat==='Alerts & CVEs';
+  return '<article class="row'+(seen.has(i.id)?' seen':'')+'" data-id="'+esc(i.id)+'">'+
+    '<button class="pin" data-pin="1" aria-pressed="'+(pin.has(i.id)?'true':'false')+
+      '" aria-label="Pin headline">&#9679;</button>'+
+    '<span class="when">'+ago(i.ts)+'</span>'+
+    '<div class="head">'+(alert?'<span class="dot" aria-hidden="true"></span>':'')+
+      '<a href="'+esc(i.link)+'" target="_blank" rel="noopener">'+esc(i.title)+'</a>'+
+      (i.sum?'<p class="gist">'+esc(i.sum)+'</p>':'')+'</div>'+
+    (cve?'<span class="cve">'+esc(cve.toUpperCase())+'</span>':'<span></span>')+
+    '<span class="src">'+esc(i.src)+'<i> · '+code(i.cat)+'</i></span></article>';
+}
+
+function draw(){
+  rail();
+  masthead();
+  statusline();
+  const list=visible();
+  const out=el('out');
+  if(!list.length){
+    out.innerHTML='<div class="void"><b>Nothing in this window.</b>'+
+      ' Widen the time range, clear the filter, or poll again.</div>';
+    return;
+  }
+  if(el('view').value==='grid'){
+    const cats=tab==='ALL'?CATS:[tab];
+    let h='';
+    for(const c of cats)for(const f of FEEDS[c]){
+      if(off.has(f.u))continue;
+      const mine=list.filter(i=>i.src===f.n).slice(0,20);
+      const st=health.find(x=>x.n===f.n);
+      if(!mine.length&&(!st||st.ok))continue;
+      h+='<section class="panel"><header><h3>'+esc(f.n)+'</h3><span>'+
+        (st&&!st.ok?'unreachable':mine.length)+'</span></header><ul>'+
+        (mine.map(i=>'<li data-id="'+esc(i.id)+'"><a href="'+esc(i.link)+
+          '" target="_blank" rel="noopener">'+esc(i.title)+'</a><p>'+ago(i.ts)+'</p></li>').join('')
+         ||'<li><p>no items in this window</p></li>')+'</ul></section>';
+    }
+    out.innerHTML='<div class="grid">'+h+'</div>';
+  }else{
+    const dayOf=i=>i.ts?new Date(i.ts).toDateString():'Undated';
+    let h='',day='';
+    for(const i of list.slice(0,600)){
+      const d=dayOf(i);
+      if(d!==day){
+        const n=list.filter(x=>dayOf(x)===d).length;
+        h+='<div class="daymark"><h2>'+(d===new Date().toDateString()?'Today':esc(d))+
+           '</h2><hr><em>'+num(n)+'</em></div>';
+        day=d;
+      }
+      h+=rowHTML(i);
+    }
+    out.innerHTML=h;
+  }
+}
+
+function rail(){
+  const cut=windowStart();
+  const count=c=>items.filter(i=>(c==='ALL'||i.cat===c)&&
+    (!cut||!i.ts||i.ts>=cut)&&!seen.has(i.id)).length;
+  el('rail').innerHTML=['ALL'].concat(CATS).map(function(c){
+    return '<button class="tab" role="tab" aria-selected="'+(c===tab)+'" data-tab="'+esc(c)+
+      '">'+(c==='ALL'?'All domains':esc(c))+'<i>'+count(c)+'</i></button>';
+  }).join('');
+}
+
+function statusline(){
+  const bad=health.filter(h=>!h.ok);
+  const known=health.length||ALLFEEDS.length;
+  const live=health.length?health.length-bad.length:'—';
+  const oldest=items.reduce((m,i)=>i.ts&&i.ts<m?i.ts:m,Date.now());
+  el('status').innerHTML=[
+    '<span><b>'+live+'</b>/'+known+' sources live</span>',
+    '<span>last poll <b>'+(stamp?new Date(stamp).toLocaleString('en-US',
+      {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—')+'</b></span>',
+    poll?'<span>cycle <b>'+poll.seconds+'s</b></span>':'',
+    '<span><b>'+num(items.length)+'</b> items retained, oldest '+ago(oldest)+'</span>',
+    bad.length?'<span class="fail">'+bad.length+' unreachable</span>':'',
+    '<span>filter <kbd>/</kbd> · poll <kbd>r</kbd> · unread <kbd>u</kbd></span>'
+  ].filter(Boolean).join('');
+}
+
+/* ── interaction ───────────────────────────────────────────────── */
+el('out').addEventListener('click',function(e){
+  const row=e.target.closest('.row,li');
+  if(!row)return;
+  const id=row.dataset.id;
+  const pinBtn=e.target.closest('[data-pin]');
+  if(pinBtn){
+    if(pin.has(id)){pin.delete(id);pinBtn.setAttribute('aria-pressed','false')}
+    else{
+      const o=items.find(x=>x.id===id)||pin.get(id);
+      if(o){pin.set(id,o);pinBtn.setAttribute('aria-pressed','true')}
+    }
+    save(LS.pin,[...pin]);
+    return;
+  }
+  if(e.target.closest('a')){
+    seen.add(id);save(LS.seen,[...seen].slice(-6000));
+    row.classList.add('seen');rail();
+    return;
+  }
+  row.classList.toggle('open');
+});
+el('rail').addEventListener('click',function(e){
+  const t=e.target.closest('.tab');
+  if(!t)return;
+  tab=t.dataset.tab;save(LS.tab,tab);draw();
+});
+el('q').addEventListener('input',draw);
+el('win').addEventListener('change',draw);
+el('view').addEventListener('change',function(e){save(LS.view,e.target.value);draw()});
+function toggleBtn(id,setter){
+  el(id).addEventListener('click',function(e){
+    const on=e.currentTarget.getAttribute('aria-pressed')!=='true';
+    e.currentTarget.setAttribute('aria-pressed',String(on));
+    setter(on);draw();
+  });
+}
+toggleBtn('unseen',v=>unseenOnly=v);
+toggleBtn('pinned',v=>pinnedOnly=v);
+el('poll').onclick=repoll;
+el('markall').onclick=function(){
+  visible().forEach(i=>seen.add(i.id));
+  save(LS.seen,[...seen].slice(-6000));draw();
+};
+el('lights').onclick=function(){
+  const t=document.documentElement.dataset.theme==='night'?'day':'night';
+  document.documentElement.dataset.theme=t;save(LS.lights,t);
+};
+el('srcbtn').onclick=function(){
+  el('dbody').innerHTML=CATS.map(function(c){
+    return '<div class="catmark">'+esc(c)+' · '+FEEDS[c].length+' feeds</div>'+
+      FEEDS[c].map(function(f){
+        const st=health.find(x=>x.n===f.n);
+        const stat=st?(st.ok?st.items+' items'+(st.ms?' · '+st.ms+'ms':'')
+                            :'<span class="bad">'+esc(st.err||'unreachable')+'</span>'):'—';
+        return '<div class="feedrow"><div><label><input type="checkbox" data-u="'+esc(f.u)+'" '+
+          (off.has(f.u)?'':'checked')+'> '+esc(f.n)+'</label>'+
+          '<div class="u">'+esc(f.u)+'</div></div>'+
+          '<div class="stat '+(st&&!st.ok?'bad':'')+'">'+stat+'</div></div>';
+      }).join('');
+  }).join('');
+  el('dcount').textContent=(ALLFEEDS.length-off.size)+' of '+ALLFEEDS.length+' enabled';
+  el('dlg').showModal();
+};
+el('dclose').onclick=function(){el('dlg').close()};
+el('dbody').addEventListener('change',function(e){
+  const u=e.target.dataset.u;
+  if(!u)return;
+  e.target.checked?off.delete(u):off.add(u);
+  save(LS.off,[...off]);
+});
+document.addEventListener('keydown',function(e){
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+  if(e.key==='/'){e.preventDefault();el('q').focus()}
+  if(e.key==='r')repoll();
+  if(e.key==='u')el('unseen').click();
+});
+
+/* the one reveal on the page: the lead figure counts up once */
+let ticking=false;
+function tickFigure(target){
+  const node=el('figure');
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches||document.hidden||target<2){
+    node.textContent=num(target);return;
+  }
+  const t0=performance.now(),dur=520;
+  ticking=true;
+  const step=function(now){
+    const p=Math.min(1,(now-t0)/dur);
+    node.textContent=num(Math.round(target*(1-Math.pow(1-p,3))));
+    if(p<1){requestAnimationFrame(step)}
+    else{ticking=false;node.textContent=num(target)}
+  };
+  requestAnimationFrame(step);
+  /* a throttled tab can freeze rAF mid-count — land the exact figure regardless */
+  setTimeout(function(){if(ticking){ticking=false;node.textContent=num(target)}},dur+400);
+}
+
+/* ── boot ──────────────────────────────────────────────────────────
+   Snapshot precedence: data/snapshot.json (what the hosted build serves,
+   refreshed by the scheduled poll) → EMBED (baked in by `td-refresh --embed`
+   for offline single-file use) → localStorage cache → poll in the browser. */
+document.documentElement.dataset.theme=load(LS.lights,'night');
+el('view').value=load(LS.view,'river');
+
+function adopt(snap,src){
+  if(!snap||!snap.items||!snap.items.length||snap.t<=stamp)return false;
+  items=snap.items;health=snap.health||[];poll=snap.poll||null;stamp=snap.t;
+  source=src;
+  return true;
+}
+let source='';
+
+function start(){
+  if(items.length){
+    dedupe();draw();
+    tickFigure(inWindow().length);
+    if((Date.now()-stamp)/6e4>240)repoll();
+  }else{
+    repoll();
+  }
+}
+
+adopt(EMBED,'embedded');
+adopt(load(LS.cache,null),'cache');
+
+/* file:// pages cannot fetch a sibling JSON, so this quietly no-ops locally */
+if(location.protocol!=='file:'){
+  fetch('data/snapshot.json',{cache:'no-cache'})
+    .then(r=>r.ok?r.json():Promise.reject(new Error('HTTP '+r.status)))
+    .then(snap=>{if(adopt(snap,'hosted'))dedupe()})
+    .catch(()=>{})
+    .finally(start);
+}else{
+  start();
+}
+</script>
+</body>
+</html>
