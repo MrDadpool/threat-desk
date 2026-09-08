@@ -1,23 +1,23 @@
-/* Threat Desk — design tokens (Hallmark · Midnight · atmospheric · Stat-Led)
+/* Threat Desk — design tokens (Command desk · Navy · Cyan data · Amber emphasis)
  * threat-desk.html inlines these same values so the page stays a single
  * portable file. Edit both, or import this file if you split the page up. */
 :root{
-  /* paper + ink — warm-anchored dark, no pure black */
-  --color-paper:    oklch(14% 0.008 40);
-  --color-paper-2:  oklch(17.5% 0.010 40);
-  --color-paper-3:  oklch(21% 0.011 40);
-  --color-rule:     oklch(28% 0.009 40);
-  --color-rule-2:   oklch(35% 0.010 40);
-  --color-muted:    oklch(58% 0.008 40);
-  --color-ink-2:    oklch(76% 0.007 45);
-  --color-ink:      oklch(95% 0.006 60);
+  /* paper + ink — navy surfaces and cool neutral text */
+  --color-paper:    #080f19;
+  --color-paper-2:  #101d2b;
+  --color-paper-3:  #17283a;
+  --color-rule:     #26384b;
+  --color-rule-2:   #3b5268;
+  --color-muted:    #93a6bb;
+  --color-ink-2:    #bdcbd9;
+  --color-ink:      #edf4fa;
 
   /* one accent (signal amber, under 3% of any viewport) + reserved status steps */
-  --color-accent:   oklch(70% 0.175 55);
-  --color-focus:    oklch(74% 0.170 55);
-  --color-critical: oklch(66% 0.185 22);
-  --color-good:     oklch(72% 0.130 155);
-  --color-data:     oklch(66% 0.115 235);
+  --color-accent:   #f4b860;
+  --color-focus:    #ffd08a;
+  --color-critical: #ff8589;
+  --color-good:     #68d9b1;
+  --color-data:     #62cbdc;
   --color-scrim:    oklch(10% 0.010 40 / .74);
 
   --font-display:"Space Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -56,3 +56,36 @@ html[data-theme="day"]{
   --color-data:     oklch(48% 0.130 240);
   --color-scrim:    oklch(28% 0.010 55 / .55);
 }
+
+/* Color Hunt palettes; supporting text tints keep small labels readable. */
+html{color-scheme:dark;--color-on-accent:#080f19}
+html[data-theme="day"]{color-scheme:light;--color-on-accent:#ffffff}
+html[data-theme="violet"]{
+  --color-paper:#000000;--color-paper-2:#190b23;--color-paper-3:#52057b;
+  --color-rule:#49265e;--color-rule-2:#892cdc;--color-muted:#bba8c8;
+  --color-ink-2:#d9c6e6;--color-ink:#f6effb;
+  --color-accent:#bc6ff1;--color-focus:#bc6ff1;--color-data:#892cdc;
+}
+html[data-theme="mint"]{
+  --color-paper:#212121;--color-paper-2:#323232;--color-paper-3:#384747;
+  --color-rule:#465858;--color-rule-2:#0d7377;--color-muted:#a5bdbb;
+  --color-ink-2:#cadbd9;--color-ink:#effaf8;
+  --color-accent:#14ffec;--color-focus:#14ffec;--color-data:#14ffec;
+}
+html[data-theme="crimson"]{
+  --color-paper:#000000;--color-paper-2:#200909;--color-paper-3:#3d0000;
+  --color-rule:#592525;--color-rule-2:#950101;--color-muted:#c1a4a4;
+  --color-ink-2:#e1caca;--color-ink:#fff0f0;
+  --color-accent:#ff8585;--color-focus:#ff8585;--color-data:#ff0000;
+}
+html[data-theme="slate"]{
+  --color-paper:#222831;--color-paper-2:#293440;--color-paper-3:#30475e;
+  --color-rule:#44576b;--color-rule-2:#657b92;--color-muted:#b0becb;
+  --color-ink-2:#dddddd;--color-ink:#f4f6f8;
+  --color-accent:#f05454;--color-focus:#ff8c8c;--color-data:#f05454;
+}
+html[data-theme="slate"] .tab[aria-selected="true"],
+html[data-theme="slate"] .tab[aria-selected="true"] i,
+html[data-theme="slate"] .head a:hover,
+html[data-theme="slate"] .catmark,
+html[data-theme="slate"] .btn[aria-pressed="true"]{color:#ff8c8c}

@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-/* Hallmark · genre: atmospheric · macrostructure: Stat-Led · theme: Midnight
+/* Previous design baseline · genre: atmospheric · macrostructure: Stat-Led · theme: Midnight
  * enrichment: none (typography + data only) · nav: N9 edge-aligned · footer: Ft2 inline status line
  * tone: utilitarian-editorial · anchor hue: 40 (warm) · accent: signal amber, <3% of viewport
  * pre-emit critique: P5 H5 E4 S5 R4 V5
@@ -16,19 +16,19 @@
  */
 
 :root{
-  --color-paper:    oklch(14% 0.008 40);
-  --color-paper-2:  oklch(17.5% 0.010 40);
-  --color-paper-3:  oklch(21% 0.011 40);
-  --color-rule:     oklch(28% 0.009 40);
-  --color-rule-2:   oklch(35% 0.010 40);
-  --color-muted:    oklch(58% 0.008 40);
-  --color-ink-2:    oklch(76% 0.007 45);
-  --color-ink:      oklch(95% 0.006 60);
-  --color-accent:   oklch(70% 0.175 55);
-  --color-focus:    oklch(74% 0.170 55);
-  --color-critical: oklch(66% 0.185 22);
-  --color-good:     oklch(72% 0.130 155);
-  --color-data:     oklch(66% 0.115 235);
+  --color-paper:    #080f19;
+  --color-paper-2:  #101d2b;
+  --color-paper-3:  #17283a;
+  --color-rule:     #26384b;
+  --color-rule-2:   #3b5268;
+  --color-muted:    #93a6bb;
+  --color-ink-2:    #bdcbd9;
+  --color-ink:      #edf4fa;
+  --color-accent:   #f4b860;
+  --color-focus:    #ffd08a;
+  --color-critical: #ff8589;
+  --color-good:     #68d9b1;
+  --color-data:     #62cbdc;
   --color-scrim:    oklch(10% 0.010 40 / .74);
 
   --font-display:"Space Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -67,6 +67,39 @@ html[data-theme="day"]{
   --color-data:     oklch(48% 0.130 240);
   --color-scrim:    oklch(28% 0.010 55 / .55);
 }
+
+/* Color Hunt palettes; supporting text tints keep small labels readable. */
+html{color-scheme:dark;--color-on-accent:#080f19}
+html[data-theme="day"]{color-scheme:light;--color-on-accent:#ffffff}
+html[data-theme="violet"]{
+  --color-paper:#000000;--color-paper-2:#190b23;--color-paper-3:#52057b;
+  --color-rule:#49265e;--color-rule-2:#892cdc;--color-muted:#bba8c8;
+  --color-ink-2:#d9c6e6;--color-ink:#f6effb;
+  --color-accent:#bc6ff1;--color-focus:#bc6ff1;--color-data:#892cdc;
+}
+html[data-theme="mint"]{
+  --color-paper:#212121;--color-paper-2:#323232;--color-paper-3:#384747;
+  --color-rule:#465858;--color-rule-2:#0d7377;--color-muted:#a5bdbb;
+  --color-ink-2:#cadbd9;--color-ink:#effaf8;
+  --color-accent:#14ffec;--color-focus:#14ffec;--color-data:#14ffec;
+}
+html[data-theme="crimson"]{
+  --color-paper:#000000;--color-paper-2:#200909;--color-paper-3:#3d0000;
+  --color-rule:#592525;--color-rule-2:#950101;--color-muted:#c1a4a4;
+  --color-ink-2:#e1caca;--color-ink:#fff0f0;
+  --color-accent:#ff8585;--color-focus:#ff8585;--color-data:#ff0000;
+}
+html[data-theme="slate"]{
+  --color-paper:#222831;--color-paper-2:#293440;--color-paper-3:#30475e;
+  --color-rule:#44576b;--color-rule-2:#657b92;--color-muted:#b0becb;
+  --color-ink-2:#dddddd;--color-ink:#f4f6f8;
+  --color-accent:#f05454;--color-focus:#ff8c8c;--color-data:#f05454;
+}
+html[data-theme="slate"] .tab[aria-selected="true"],
+html[data-theme="slate"] .tab[aria-selected="true"] i,
+html[data-theme="slate"] .head a:hover,
+html[data-theme="slate"] .catmark,
+html[data-theme="slate"] .btn[aria-pressed="true"]{color:#ff8c8c}
 
 *{box-sizing:border-box}
 html,body{overflow-x:clip}
@@ -292,6 +325,55 @@ kbd{font-family:var(--font-mono);font-size:var(--text-xs);background:var(--color
 @media (prefers-reduced-motion:reduce){
   *{transition-duration:60ms!important;animation:none!important}
 }
+
+/* Command desk: framed overview, luminous data, quiet reading surface. */
+body{background-image:radial-gradient(ellipse at 70% 0%,color-mix(in srgb,var(--color-data) 7%,transparent),transparent 55%);background-attachment:fixed}
+.ctl{min-height:68px;padding:14px 28px;background:var(--color-paper-2);box-shadow:0 6px 24px #00000018}
+.mark{align-items:center;gap:10px;margin-right:20px}
+.mark b{font-size:22px;letter-spacing:-1px}
+.mark span:not(.led){display:none}
+.led{width:9px;height:9px;box-shadow:0 0 0 5px color-mix(in srgb,var(--color-good) 10%,transparent)}
+input[type=search]{padding:9px 12px;background:var(--color-paper);max-width:270px}
+input[type=search]:focus-visible{outline:2px solid var(--color-focus);outline-offset:2px}
+#poll{background:var(--color-accent);border-color:var(--color-accent);color:var(--color-on-accent);font-weight:600}
+#poll:hover{filter:brightness(1.08)}
+.rail{position:relative;top:auto;padding:0 28px;gap:16px;background:var(--color-paper)}
+.tab{padding:15px 4px;border:0;border-bottom:2px solid transparent;border-radius:0}
+.tab[aria-selected="true"]{background:none;color:var(--color-accent);border-color:var(--color-accent)}
+.tab i{padding:2px 5px;background:var(--color-paper-2);border-radius:4px}
+.tab[aria-selected="true"] i{color:var(--color-accent)}
+.deck{margin:28px auto 0;padding:26px 30px 24px;width:calc(100% - 56px);max-width:1504px;border:1px solid var(--color-rule);border-radius:12px;background:linear-gradient(115deg,color-mix(in srgb,var(--color-data) 6%,var(--color-paper-2)),var(--color-paper-2) 60%);box-shadow:0 18px 48px #00000018,inset 0 1px 0 color-mix(in srgb,var(--color-ink) 5%,transparent)}
+.deck-heading{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:28px}
+.deck-heading h2{font-size:17px;letter-spacing:-.02em}
+.deck-heading>span,.metric-label{font:500 10px var(--font-mono);letter-spacing:.12em;color:var(--color-muted)}
+.lede{grid-template-columns:minmax(220px,.65fr) minmax(0,1.6fr);gap:36px;align-items:center}
+.lead-metric{border-left:3px solid var(--color-accent);padding:0 0 4px 20px}
+.metric-label{display:block;text-transform:uppercase;margin-bottom:14px}
+.figure{font-size:clamp(3.75rem,6vw,6.25rem);color:var(--color-accent);letter-spacing:-.06em;line-height:1}
+.claim{font-size:clamp(1.5rem,2.3vw,2.5rem);font-weight:500;max-width:32ch;line-height:1.2;color:var(--color-ink-2)}
+.claim b{color:var(--color-ink)}
+.qual{font-size:12px;line-height:1.8;margin-bottom:0;max-width:72ch;color:var(--color-muted)}
+.kpis{margin:28px 0 0;padding:20px 0;border-bottom:1px solid var(--color-rule);grid-template-columns:repeat(5,minmax(0,1fr))}
+.kpi{padding:0 20px}.kpi:first-child{padding-left:0}.kpi:last-child{padding-right:0}
+.kpi dt{font-size:10px;margin-bottom:12px}.kpi dd{font-size:30px}.kpi dd small{font-size:10px;display:inline-block}
+.plots{margin-top:24px;gap:32px;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}
+.plot h3{font-size:10px;color:var(--color-ink);margin-bottom:18px}.plot h3 b{color:var(--color-muted);font-size:9px}
+.plot+.plot{padding-left:28px;border-left:1px solid var(--color-rule)}
+.gridline{stroke-dasharray:3 5}.col{fill:var(--color-data);opacity:.8}.col.peak{opacity:1}.col:hover{opacity:1}
+.catrow{padding:5px 0;font-size:12px;grid-template-columns:104px minmax(0,1fr) 44px}
+.track{height:6px;background:var(--color-paper-3)}
+.track i{background:linear-gradient(90deg,color-mix(in srgb,var(--color-data) 50%,var(--color-paper-2)),var(--color-data))}
+.stream-heading{max-width:1560px;margin:30px auto 0;padding:0 28px;display:flex;justify-content:space-between;align-items:baseline;gap:16px}
+.stream-heading h2{font-size:20px}.stream-heading span{font:11px var(--font-mono);color:var(--color-muted)}
+main{padding-left:28px;padding-right:28px}.daymark{margin-top:20px;padding:10px 12px;background:var(--color-paper-2);border-radius:6px}.daymark h2{color:var(--color-ink-2)}
+.row{padding:13px 12px;border-bottom-color:color-mix(in srgb,var(--color-rule) 65%,transparent)}
+.head{font-size:14px;font-weight:500}.row.open{background:var(--color-paper-2)}.pin{color:var(--color-muted)}
+.cve{background:color-mix(in srgb,var(--color-critical) 8%,transparent);border-color:color-mix(in srgb,var(--color-critical) 35%,transparent);font-size:10px}
+.panel{box-shadow:0 6px 18px #00000012;border-radius:8px}.panel header{padding:14px;border-top:2px solid var(--color-data);border-radius:8px 8px 0 0}.panel li{padding:12px 14px}
+.status{background:var(--color-paper-2);padding:10px 28px;font-size:10px}
+@media(min-width:721px) and (max-width:1180px){.ctl{gap:8px}.mark{margin-right:4px}.ctl .grow{display:none}.ctl input[type=search]{max-width:none}.kpi{padding:0 12px}.kpi dd small{display:block;margin:7px 0 0}}
+@media(max-width:900px){.plots{grid-template-columns:1fr}.plot+.plot{border-left:0;padding:20px 0 0;border-top:1px solid var(--color-rule)}.lede{grid-template-columns:minmax(180px,.7fr) 1.3fr;gap:24px}.deck-heading>span{display:none}}
+@media(max-width:720px){.ctl{position:relative;padding:16px}.mark{width:100%;margin-bottom:8px}.rail{padding:0 16px;gap:16px}.deck{width:calc(100% - 32px);margin-top:16px;padding:20px}.deck-heading{margin-bottom:24px}.lede{grid-template-columns:1fr;gap:20px}.claim{font-size:24px}.figure{font-size:64px}.kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 16px}.kpi,.kpi:first-child,.kpi:last-child{padding:0;border:0}.kpi dd small{display:block;margin:6px 0 0}.plots{gap:20px}.plot h3 b{display:block;margin-top:6px}.stream-heading{padding:0 16px}.stream-heading span{display:none}main{padding-left:16px;padding-right:16px}.row{padding:12px 4px;column-gap:10px}.status{padding:12px 16px}.grid{grid-template-columns:minmax(0,1fr)}}
 </style>
 </head>
 <body>
@@ -318,14 +400,22 @@ kbd{font-family:var(--font-mono);font-size:var(--text-xs);background:var(--color
   <button class="btn" id="markall">Mark read</button>
   <button class="btn" id="poll">Poll now</button>
   <button class="btn" id="srcbtn">Sources</button>
-  <button class="btn" id="lights" aria-label="Toggle light and dark">Lights</button>
+  <select id="theme" aria-label="Color theme" title="Color theme">
+    <option value="night">Theme: Midnight</option>
+    <option value="day">Theme: Daylight</option>
+    <option value="violet">Theme: Violet</option>
+    <option value="mint">Theme: Neon mint</option>
+    <option value="crimson">Theme: Crimson</option>
+    <option value="slate">Theme: Slate &amp; coral</option>
+  </select>
 </div>
 
 <nav class="rail" id="rail" role="tablist" aria-label="Coverage domains"></nav>
 
 <section class="deck" aria-label="Coverage summary">
+  <div class="deck-heading"><h2>Intelligence overview</h2><span>SECURITY / SYSTEMS / AI</span></div>
   <div class="lede">
-    <div class="figure tnum" id="figure">&mdash;</div>
+    <div class="lead-metric"><span class="metric-label">Headlines in window</span><div class="figure tnum" id="figure">&#8211;</div></div>
     <div>
       <h1 class="claim" id="claim">Headlines pulled since the last poll.</h1>
       <p class="qual" id="qual"></p>
@@ -338,6 +428,7 @@ kbd{font-family:var(--font-mono);font-size:var(--text-xs);background:var(--color
   </div>
 </section>
 
+<div class="stream-heading"><h2>Intelligence stream</h2><span>Latest reporting across your sources</span></div>
 <main id="out"><div class="void"><b>Loading snapshot&hellip;</b></div></main>
 
 <footer class="status" id="status"></footer>
@@ -644,8 +735,8 @@ function masthead(){
     if(poll.browser)parts.push('via in-browser relay');
   }
   parts.push(num(items.length)+' items retained over '+(poll?poll.retain_days:14)+' days');
-  el('qual').innerHTML=parts.join(' · ')+'. Re-poll with <code>./td-refresh</code>'+
-    (OPERATOR?' — desk operated by '+esc(OPERATOR):'')+'.';
+  el('qual').innerHTML=parts.join(' · ')+'.'+
+    (OPERATOR?' Desk operated by '+esc(OPERATOR)+'.':'');
   el('opline').textContent=OPERATOR?OPERATOR.toUpperCase():'signals desk';
 
   el('kpis').innerHTML=[
@@ -857,10 +948,14 @@ el('markall').onclick=function(){
   visible().forEach(i=>seen.add(i.id));
   save(LS.seen,[...seen].slice(-6000));draw();
 };
-el('lights').onclick=function(){
-  const t=document.documentElement.dataset.theme==='night'?'day':'night';
-  document.documentElement.dataset.theme=t;save(LS.lights,t);
-};
+function applyTheme(value){
+  const t=[...el('theme').options].some(o=>o.value===value)?value:'night';
+  document.documentElement.dataset.theme=t;
+  el('theme').value=t;
+}
+el('theme').addEventListener('change',function(e){
+  applyTheme(e.target.value);save(LS.lights,el('theme').value);
+});
 el('srcbtn').onclick=function(){
   el('dbody').innerHTML=CATS.map(function(c){
     return '<div class="catmark">'+esc(c)+' · '+FEEDS[c].length+' feeds</div>'+
@@ -915,7 +1010,7 @@ function tickFigure(target){
    Snapshot precedence: data/snapshot.json (what the hosted build serves,
    refreshed by the scheduled poll) → EMBED (baked in by `td-refresh --embed`
    for offline single-file use) → localStorage cache → poll in the browser. */
-document.documentElement.dataset.theme=load(LS.lights,'night');
+applyTheme(load(LS.lights,'night'));
 el('view').value=load(LS.view,'river');
 
 function adopt(snap,src){

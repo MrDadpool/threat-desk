@@ -59,7 +59,8 @@ latency, and lets you disable one without editing anything.
 | `u` | unread only |
 
 River or by-source layout, 6 h to 14 d windows, domain tabs with unread counts, pinning,
-CVE badges, dark and light. Read/pinned state lives in `localStorage`, per browser.
+CVE badges, and a saved color theme selector: Midnight, Daylight, Violet, Neon mint,
+Crimson, and Slate & coral. Read/pinned state lives in `localStorage`, per browser.
 
 The in-page **Poll now** button exists as a fallback and is the slow path — browsers can't
 fetch most feeds directly (CORS), so it relays through a third-party service and is rate
