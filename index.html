@@ -1,0 +1,1249 @@
+<!doctype html>
+<html lang="en" data-theme="night">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Threat Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Previous design baseline · genre: atmospheric · macrostructure: Stat-Led · theme: Midnight
+ * enrichment: none (typography + data only) · nav: N9 edge-aligned · footer: Ft2 inline status line
+ * tone: utilitarian-editorial · anchor hue: 40 (warm) · accent: signal amber, <3% of viewport
+ * pre-emit critique: P5 H5 E4 S5 R4 V5
+ * Every figure on this page is counted from the live snapshot. No invented metrics.
+ */
+
+:root{
+  --color-paper:    #080f19;
+  --color-paper-2:  #101d2b;
+  --color-paper-3:  #17283a;
+  --color-rule:     #26384b;
+  --color-rule-2:   #3b5268;
+  --color-muted:    #93a6bb;
+  --color-ink-2:    #bdcbd9;
+  --color-ink:      #edf4fa;
+  --color-accent:   #f4b860;
+  --color-focus:    #ffd08a;
+  --color-critical: #ff8589;
+  --color-good:     #68d9b1;
+  --color-data:     #62cbdc;
+  --color-scrim:    oklch(10% 0.010 40 / .74);
+
+  --font-display:"Space Grotesk","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --font-body:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  --text-figure:clamp(3.25rem,7vw + .5rem,6rem);
+  --text-3xl:clamp(1.5rem,2vw + .6rem,2rem);
+  --text-xl:1.125rem;
+  --text-base:.875rem;
+  --text-sm:.8125rem;
+  --text-xs:.6875rem;
+
+  --space-2xs:4px; --space-xs:8px; --space-sm:12px; --space-md:16px;
+  --space-lg:24px; --space-xl:32px; --space-2xl:48px; --space-3xl:64px;
+
+  --rule-hair:1px;
+  --radius-sm:4px; --radius-md:6px; --radius-pill:999px;
+  --ease-out:cubic-bezier(.22,.61,.36,1);
+  --ease-in-out:cubic-bezier(.4,0,.2,1);
+  --dur-fast:120ms; --dur-mid:220ms;
+}
+html[data-theme="day"]{
+  --color-paper:    oklch(97.5% 0.006 60);
+  --color-paper-2:  oklch(94.5% 0.008 60);
+  --color-paper-3:  oklch(91% 0.009 60);
+  --color-rule:     oklch(84% 0.008 60);
+  --color-rule-2:   oklch(74% 0.010 60);
+  --color-muted:    oklch(52% 0.010 55);
+  --color-ink-2:    oklch(38% 0.010 50);
+  --color-ink:      oklch(19% 0.011 45);
+  --color-accent:   oklch(54% 0.180 45);
+  --color-focus:    oklch(50% 0.180 45);
+  --color-critical: oklch(50% 0.190 25);
+  --color-good:     oklch(48% 0.120 155);
+  --color-data:     oklch(48% 0.130 240);
+  --color-scrim:    oklch(28% 0.010 55 / .55);
+}
+
+/* Color Hunt palettes; supporting text tints keep small labels readable. */
+html{color-scheme:dark;--color-on-accent:#080f19}
+html[data-theme="day"]{color-scheme:light;--color-on-accent:#ffffff}
+html[data-theme="violet"]{
+  --color-paper:#000000;--color-paper-2:#190b23;--color-paper-3:#52057b;
+  --color-rule:#49265e;--color-rule-2:#892cdc;--color-muted:#bba8c8;
+  --color-ink-2:#d9c6e6;--color-ink:#f6effb;
+  --color-accent:#bc6ff1;--color-focus:#bc6ff1;--color-data:#892cdc;
+}
+html[data-theme="mint"]{
+  --color-paper:#212121;--color-paper-2:#323232;--color-paper-3:#384747;
+  --color-rule:#465858;--color-rule-2:#0d7377;--color-muted:#a5bdbb;
+  --color-ink-2:#cadbd9;--color-ink:#effaf8;
+  --color-accent:#14ffec;--color-focus:#14ffec;--color-data:#14ffec;
+}
+html[data-theme="crimson"]{
+  --color-paper:#000000;--color-paper-2:#200909;--color-paper-3:#3d0000;
+  --color-rule:#592525;--color-rule-2:#950101;--color-muted:#c1a4a4;
+  --color-ink-2:#e1caca;--color-ink:#fff0f0;
+  --color-accent:#ff8585;--color-focus:#ff8585;--color-data:#ff0000;
+}
+html[data-theme="slate"]{
+  --color-paper:#222831;--color-paper-2:#293440;--color-paper-3:#30475e;
+  --color-rule:#44576b;--color-rule-2:#657b92;--color-muted:#b0becb;
+  --color-ink-2:#dddddd;--color-ink:#f4f6f8;
+  --color-accent:#f05454;--color-focus:#ff8c8c;--color-data:#f05454;
+}
+html[data-theme="slate"] .tab[aria-selected="true"],
+html[data-theme="slate"] .tab[aria-selected="true"] i,
+html[data-theme="slate"] .head a:hover,
+html[data-theme="slate"] .catmark,
+html[data-theme="slate"] .btn[aria-pressed="true"]{color:#ff8c8c}
+
+*{box-sizing:border-box}
+html,body{overflow-x:clip}
+body{
+  margin:0;background:var(--color-paper);color:var(--color-ink);
+  font:400 var(--text-base)/1.5 var(--font-body);
+  -webkit-font-smoothing:antialiased;
+  font-variant-numeric:tabular-nums;
+}
+a{color:inherit;text-decoration:none}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--color-focus);outline-offset:2px;transition:none}
+.tnum{font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:var(--font-display);font-style:normal;letter-spacing:-.025em;margin:0}
+
+.bar{position:fixed;top:0;left:0;height:2px;width:0;background:var(--color-accent);
+  z-index:99;transition:width var(--dur-mid) var(--ease-out)}
+.ctl{position:sticky;top:0;z-index:60;background:var(--color-paper);
+  border-bottom:var(--rule-hair) solid var(--color-rule);
+  display:flex;align-items:center;gap:var(--space-sm);
+  padding:var(--space-sm) var(--space-lg);flex-wrap:wrap}
+.mark{display:flex;align-items:baseline;gap:var(--space-xs);margin-right:var(--space-sm)}
+.mark b{font-family:var(--font-display);font-weight:700;font-size:var(--text-xl);
+  letter-spacing:-.03em}
+.mark span{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-muted);
+  text-transform:uppercase;letter-spacing:.08em}
+.led{width:7px;height:7px;border-radius:50%;background:var(--color-good);
+  align-self:center;margin-right:2px}
+.led[data-s="busy"]{background:var(--color-accent)}
+.led[data-s="err"]{background:var(--color-critical)}
+
+input[type=search]{background:var(--color-paper-2);border:var(--rule-hair) solid var(--color-rule);
+  border-radius:var(--radius-md);padding:7px 10px;min-width:180px;flex:1 1 180px;max-width:300px;
+  outline:none;transition:border-color var(--dur-fast) var(--ease-out)}
+input[type=search]::placeholder{color:var(--color-muted)}
+input[type=search]:hover{border-color:var(--color-rule-2)}
+select,.btn{background:var(--color-paper-2);border:var(--rule-hair) solid var(--color-rule);
+  border-radius:var(--radius-md);padding:7px 10px;cursor:pointer;white-space:nowrap;
+  font-size:var(--text-sm);
+  transition:border-color var(--dur-fast) var(--ease-out),background var(--dur-fast) var(--ease-out)}
+.btn:hover,select:hover{border-color:var(--color-rule-2);background:var(--color-paper-3)}
+.btn:active{transform:translateY(1px)}
+.btn[aria-pressed="true"]{border-color:var(--color-accent);color:var(--color-accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.grow{flex:1}
+
+.rail{position:sticky;top:52px;z-index:50;background:var(--color-paper);
+  border-bottom:var(--rule-hair) solid var(--color-rule);
+  display:flex;gap:var(--space-2xs);padding:var(--space-xs) var(--space-lg);
+  overflow-x:auto;scrollbar-width:none}
+.rail::-webkit-scrollbar{display:none}
+.tab{background:none;border:var(--rule-hair) solid transparent;border-radius:var(--radius-pill);
+  padding:5px 11px;color:var(--color-ink-2);font-size:var(--text-sm);font-weight:500;
+  white-space:nowrap;cursor:pointer;
+  transition:color var(--dur-fast) var(--ease-out),border-color var(--dur-fast) var(--ease-out)}
+.tab:hover{color:var(--color-ink);border-color:var(--color-rule)}
+.tab[aria-selected="true"]{color:var(--color-ink);border-color:var(--color-rule-2);
+  background:var(--color-paper-2)}
+.tab i{font-style:normal;font-family:var(--font-mono);font-size:var(--text-xs);
+  color:var(--color-muted);margin-left:6px}
+
+.deck{padding:var(--space-2xl) var(--space-lg) var(--space-xl);
+  max-width:1560px;margin:0 auto;
+  border-bottom:var(--rule-hair) solid var(--color-rule)}
+.lede{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr);
+  gap:var(--space-xl) var(--space-2xl);align-items:end}
+.figure{font-family:var(--font-display);font-weight:700;font-size:var(--text-figure);
+  line-height:.86;letter-spacing:-.045em;font-variant-numeric:tabular-nums;
+  overflow-wrap:anywhere;min-width:0}
+.claim{font-family:var(--font-display);font-weight:500;font-size:var(--text-3xl);
+  line-height:1.15;max-width:34ch;overflow-wrap:anywhere;min-width:0}
+.claim b{font-weight:700}
+.qual{color:var(--color-ink-2);margin-top:var(--space-sm);max-width:58ch;font-size:var(--text-base)}
+.qual code{font-family:var(--font-mono);font-size:.8125rem;color:var(--color-ink);
+  background:var(--color-paper-2);padding:1px 5px;border-radius:var(--radius-sm)}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  margin-top:var(--space-2xl);border-top:var(--rule-hair) solid var(--color-rule)}
+.kpi{padding:var(--space-md) var(--space-lg) var(--space-md) 0;
+  border-right:var(--rule-hair) solid var(--color-rule)}
+.kpi:last-child{border-right:0}
+.kpi dt{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-muted);
+  text-transform:uppercase;letter-spacing:.09em;margin-bottom:var(--space-xs)}
+.kpi dd{margin:0;font-family:var(--font-display);font-weight:600;font-size:1.75rem;
+  line-height:1;letter-spacing:-.03em}
+.kpi dd small{font-size:.8125rem;font-weight:500;color:var(--color-muted);
+  font-family:var(--font-mono);margin-left:5px;letter-spacing:0}
+.kpi.alarm dd{color:var(--color-critical)}
+
+.plots{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);
+  gap:var(--space-2xl);margin-top:var(--space-2xl)}
+.plot h3{font-family:var(--font-mono);font-weight:500;font-size:var(--text-xs);
+  color:var(--color-muted);text-transform:uppercase;letter-spacing:.09em;
+  margin-bottom:var(--space-md)}
+.plot h3 b{color:var(--color-ink-2);font-weight:500}
+.plot svg{display:block;width:100%;height:auto;overflow:visible}
+.gridline{stroke:var(--color-rule);stroke-width:1}
+
+/* Attack origins — one mark type, area-proportional. The map is a backdrop, so
+   the land sits at rule weight and only the bubbles carry saturation. */
+.geo{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,258px);
+  gap:var(--space-2xl);margin-top:var(--space-2xl);
+  padding-top:var(--space-xl);border-top:1px solid var(--color-rule)}
+.geo .plot+.plot{padding-left:var(--space-lg);border-left:1px solid var(--color-rule)}
+#map svg{display:block;width:100%;height:auto;overflow:hidden}
+.land{fill:color-mix(in srgb,var(--color-ink) 7%,transparent);
+  stroke:var(--color-rule);stroke-width:.4}
+.orig{fill:var(--color-data);fill-opacity:.34;stroke:var(--color-data);
+  stroke-width:.8;transition:fill-opacity var(--dur-fast) var(--ease-out)}
+.orig.hot{fill:var(--color-accent);stroke:var(--color-accent);fill-opacity:.42}
+.orig:hover{fill-opacity:.8}
+.geonote{margin-top:var(--space-sm);font-size:var(--text-xs);line-height:1.5;
+  color:var(--color-muted);max-width:64ch}
+.portrow{display:grid;grid-template-columns:100px minmax(0,1fr) 58px;
+  align-items:center;gap:var(--space-xs);padding:5px 0;font-size:var(--text-sm)}
+.portrow>span{font-family:var(--font-mono);font-size:var(--text-xs);
+  color:var(--color-ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.portrow>b{font-family:var(--font-mono);font-size:var(--text-xs);font-weight:500;
+  color:var(--color-muted);text-align:right}
+.col{fill:var(--color-data)}
+.col.peak{fill:var(--color-accent)}
+.axis{fill:var(--color-muted);font-family:var(--font-mono);font-size:9px}
+.vlabel{fill:var(--color-ink-2);font-family:var(--font-mono);font-size:9.5px}
+.catrow{display:grid;grid-template-columns:104px minmax(0,1fr) 44px;
+  align-items:center;gap:var(--space-sm);padding:5px 0;font-size:var(--text-sm)}
+.catrow span:first-child{color:var(--color-ink-2);overflow:hidden;text-overflow:ellipsis;
+  white-space:nowrap}
+.track{height:9px;background:var(--color-paper-2);border-radius:var(--radius-sm);overflow:hidden}
+.track i{display:block;height:100%;background:var(--color-data);
+  border-radius:0 var(--radius-sm) var(--radius-sm) 0}
+.catrow b{font-family:var(--font-mono);font-weight:500;text-align:right;
+  color:var(--color-ink-2);font-size:var(--text-xs)}
+
+main{max-width:1560px;margin:0 auto;padding:0 var(--space-lg) var(--space-3xl)}
+.daymark{display:flex;align-items:center;gap:var(--space-md);
+  margin:var(--space-xl) 0 var(--space-2xs);padding-top:var(--space-sm)}
+.daymark h2{font-family:var(--font-mono);font-weight:500;font-size:var(--text-xs);
+  color:var(--color-muted);text-transform:uppercase;letter-spacing:.11em}
+.daymark hr{flex:1;border:0;border-top:var(--rule-hair) solid var(--color-rule);margin:0}
+.daymark em{font-style:normal;font-family:var(--font-mono);font-size:var(--text-xs);
+  color:var(--color-muted)}
+
+.row{display:grid;grid-template-columns:22px 52px minmax(0,1fr) auto 196px;
+  align-items:baseline;gap:var(--space-md);
+  padding:9px var(--space-xs);border-bottom:var(--rule-hair) solid var(--color-rule);
+  transition:background var(--dur-fast) var(--ease-out)}
+.row:hover{background:var(--color-paper-2)}
+.row.seen .head,.row.seen .src{color:var(--color-muted)}
+.pin{background:none;border:0;padding:0;cursor:pointer;color:var(--color-rule-2);
+  font-size:.75rem;line-height:1;align-self:center;
+  transition:color var(--dur-fast) var(--ease-out)}
+.pin:hover{color:var(--color-ink-2)}
+.pin[aria-pressed="true"]{color:var(--color-accent)}
+.when{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-muted);
+  text-align:right}
+.head{font-weight:450;min-width:0;overflow-wrap:anywhere}
+.head a{transition:color var(--dur-fast) var(--ease-out)}
+.head a:hover{color:var(--color-accent)}
+.gist{display:none;color:var(--color-ink-2);font-size:var(--text-sm);
+  margin-top:var(--space-2xs);max-width:88ch}
+.row.open .gist{display:block}
+.cve{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-critical);
+  border:var(--rule-hair) solid var(--color-critical);border-radius:var(--radius-sm);
+  padding:1px 5px;white-space:nowrap}
+.src{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-ink-2);
+  text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.src i{font-style:normal;color:var(--color-muted)}
+.dot{display:inline-block;width:5px;height:5px;border-radius:50%;
+  background:var(--color-accent);margin-right:6px;vertical-align:middle}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+  gap:var(--space-md);margin-top:var(--space-lg)}
+.panel{background:var(--color-paper-2);border:var(--rule-hair) solid var(--color-rule);
+  border-radius:var(--radius-md);display:flex;flex-direction:column;max-height:440px}
+.panel header{display:flex;justify-content:space-between;align-items:baseline;
+  gap:var(--space-xs);padding:10px var(--space-sm);
+  border-bottom:var(--rule-hair) solid var(--color-rule)}
+.panel header h3{font-size:var(--text-sm);font-weight:600;letter-spacing:-.01em;
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.panel header span{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-muted)}
+.panel ul{list-style:none;margin:0;padding:var(--space-2xs) 0;overflow-y:auto}
+.panel li{padding:7px var(--space-sm);border-bottom:var(--rule-hair) solid var(--color-rule);
+  font-size:var(--text-sm);line-height:1.35}
+.panel li:last-child{border-bottom:0}
+.panel li:hover{background:var(--color-paper-3)}
+.panel li p{margin:3px 0 0;font-family:var(--font-mono);font-size:var(--text-xs);
+  color:var(--color-muted)}
+
+.void{color:var(--color-muted);padding:var(--space-3xl) var(--space-lg);text-align:center}
+.void b{display:block;font-family:var(--font-display);font-size:var(--text-xl);
+  color:var(--color-ink-2);margin-bottom:var(--space-xs)}
+
+.status{position:sticky;bottom:0;z-index:55;background:var(--color-paper);
+  border-top:var(--rule-hair) solid var(--color-rule);
+  display:flex;gap:var(--space-lg);flex-wrap:wrap;
+  padding:var(--space-xs) var(--space-lg);
+  font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-muted)}
+.status b{color:var(--color-ink-2);font-weight:500}
+.status .fail{color:var(--color-critical)}
+
+dialog{background:var(--color-paper);color:var(--color-ink);
+  border:var(--rule-hair) solid var(--color-rule-2);border-radius:var(--radius-md);
+  max-width:660px;width:min(94vw,660px);padding:0}
+dialog::backdrop{background:var(--color-scrim)}
+dialog header{display:flex;justify-content:space-between;align-items:center;gap:var(--space-md);
+  padding:var(--space-sm) var(--space-md);border-bottom:var(--rule-hair) solid var(--color-rule)}
+dialog header h3{font-size:var(--text-base)}
+dialog .scroll{padding:var(--space-md);max-height:62vh;overflow:auto}
+.feedrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:var(--space-md);
+  align-items:start;padding:7px 0;border-bottom:var(--rule-hair) solid var(--color-rule)}
+.feedrow label{display:flex;gap:var(--space-xs);align-items:baseline;cursor:pointer;
+  font-size:var(--text-sm)}
+.feedrow .u{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-muted);
+  word-break:break-all;margin-top:2px;padding-left:22px}
+.feedrow .stat{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-muted);
+  white-space:nowrap;text-align:right}
+.feedrow .stat.bad{color:var(--color-critical)}
+.catmark{font-family:var(--font-mono);font-size:var(--text-xs);color:var(--color-accent);
+  text-transform:uppercase;letter-spacing:.1em;margin:var(--space-md) 0 var(--space-2xs)}
+kbd{font-family:var(--font-mono);font-size:var(--text-xs);background:var(--color-paper-2);
+  border:var(--rule-hair) solid var(--color-rule);border-radius:var(--radius-sm);padding:1px 5px}
+
+@media (max-width:1080px){
+  .plots,.geo{grid-template-columns:minmax(0,1fr)}
+  .lede{grid-template-columns:minmax(0,1fr);align-items:start}
+}
+@media (max-width:720px){
+  .ctl,.rail,.status,main,.deck{padding-left:var(--space-md);padding-right:var(--space-md)}
+  .ctl{gap:var(--space-xs) var(--space-2xs);padding-top:var(--space-xs);
+    padding-bottom:var(--space-xs)}
+  .ctl .btn,.ctl select{padding:6px 9px;font-size:var(--text-xs)}
+  .mark{width:100%;margin-right:0}
+  input[type=search]{max-width:none;flex-basis:100%}
+  .rail{position:static}
+  .status{position:static}
+  .deck{padding-top:var(--space-xl)}
+  .row{grid-template-columns:20px 46px minmax(0,1fr);row-gap:var(--space-2xs)}
+  .row .cve{grid-column:2;justify-self:start}
+  .row .src{grid-column:3;text-align:left;justify-self:start}
+  .gist{display:none!important}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 var(--space-md)}
+  .kpi{border-right:0;border-bottom:var(--rule-hair) solid var(--color-rule);padding-right:0}
+  .status{gap:var(--space-sm)}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:60ms!important;animation:none!important}
+}
+
+/* Command desk: framed overview, luminous data, quiet reading surface. */
+body{background-image:radial-gradient(ellipse at 70% 0%,color-mix(in srgb,var(--color-data) 7%,transparent),transparent 55%);background-attachment:fixed}
+.ctl{min-height:68px;padding:14px 28px;background:var(--color-paper-2);box-shadow:0 6px 24px #00000018}
+.mark{align-items:center;gap:10px;margin-right:20px}
+.mark b{font-size:22px;letter-spacing:-1px}
+.mark span:not(.led){display:none}
+.led{width:9px;height:9px;box-shadow:0 0 0 5px color-mix(in srgb,var(--color-good) 10%,transparent)}
+input[type=search]{padding:9px 12px;background:var(--color-paper);max-width:270px}
+input[type=search]:focus-visible{outline:2px solid var(--color-focus);outline-offset:2px}
+#poll{background:var(--color-accent);border-color:var(--color-accent);color:var(--color-on-accent);font-weight:600}
+#poll:hover{filter:brightness(1.08)}
+.rail{position:relative;top:auto;padding:0 28px;gap:16px;background:var(--color-paper)}
+.tab{padding:15px 4px;border:0;border-bottom:2px solid transparent;border-radius:0}
+.tab[aria-selected="true"]{background:none;color:var(--color-accent);border-color:var(--color-accent)}
+.tab i{padding:2px 5px;background:var(--color-paper-2);border-radius:4px}
+.tab[aria-selected="true"] i{color:var(--color-accent)}
+.deck{margin:28px auto 0;padding:26px 30px 24px;width:calc(100% - 56px);max-width:1504px;border:1px solid var(--color-rule);border-radius:12px;background:linear-gradient(115deg,color-mix(in srgb,var(--color-data) 6%,var(--color-paper-2)),var(--color-paper-2) 60%);box-shadow:0 18px 48px #00000018,inset 0 1px 0 color-mix(in srgb,var(--color-ink) 5%,transparent)}
+.deck-heading{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:28px}
+.deck-heading h2{font-size:17px;letter-spacing:-.02em}
+.deck-heading>span,.metric-label{font:500 10px var(--font-mono);letter-spacing:.12em;color:var(--color-muted)}
+.lede{grid-template-columns:minmax(220px,.65fr) minmax(0,1.6fr);gap:36px;align-items:center}
+.lead-metric{border-left:3px solid var(--color-accent);padding:0 0 4px 20px}
+.metric-label{display:block;text-transform:uppercase;margin-bottom:14px}
+.figure{font-size:clamp(3.75rem,6vw,6.25rem);color:var(--color-accent);letter-spacing:-.06em;line-height:1}
+.claim{font-size:clamp(1.5rem,2.3vw,2.5rem);font-weight:500;max-width:32ch;line-height:1.2;color:var(--color-ink-2)}
+.claim b{color:var(--color-ink)}
+.qual{font-size:12px;line-height:1.8;margin-bottom:0;max-width:72ch;color:var(--color-muted)}
+.kpis{margin:28px 0 0;padding:20px 0;border-bottom:1px solid var(--color-rule);grid-template-columns:repeat(5,minmax(0,1fr))}
+.kpi{padding:0 20px}.kpi:first-child{padding-left:0}.kpi:last-child{padding-right:0}
+.kpi dt{font-size:10px;margin-bottom:12px}.kpi dd{font-size:30px}.kpi dd small{font-size:10px;display:inline-block}
+.plots{margin-top:24px;gap:32px;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}
+.plot h3{font-size:10px;color:var(--color-ink);margin-bottom:18px}.plot h3 b{color:var(--color-muted);font-size:9px}
+.plot+.plot{padding-left:28px;border-left:1px solid var(--color-rule)}
+.gridline{stroke-dasharray:3 5}.col{fill:var(--color-data);opacity:.8}.col.peak{opacity:1}.col:hover{opacity:1}
+.catrow{padding:5px 0;font-size:12px;grid-template-columns:104px minmax(0,1fr) 44px}
+.track{height:6px;background:var(--color-paper-3)}
+.track i{background:linear-gradient(90deg,color-mix(in srgb,var(--color-data) 50%,var(--color-paper-2)),var(--color-data))}
+.stream-heading{max-width:1560px;margin:30px auto 0;padding:0 28px;display:flex;justify-content:space-between;align-items:baseline;gap:16px}
+.stream-heading h2{font-size:20px}.stream-heading span{font:11px var(--font-mono);color:var(--color-muted)}
+main{padding-left:28px;padding-right:28px}.daymark{margin-top:20px;padding:10px 12px;background:var(--color-paper-2);border-radius:6px}.daymark h2{color:var(--color-ink-2)}
+.row{padding:13px 12px;border-bottom-color:color-mix(in srgb,var(--color-rule) 65%,transparent)}
+.head{font-size:14px;font-weight:500}.row.open{background:var(--color-paper-2)}.pin{color:var(--color-muted)}
+.cve{background:color-mix(in srgb,var(--color-critical) 8%,transparent);border-color:color-mix(in srgb,var(--color-critical) 35%,transparent);font-size:10px}
+.panel{box-shadow:0 6px 18px #00000012;border-radius:8px}.panel header{padding:14px;border-top:2px solid var(--color-data);border-radius:8px 8px 0 0}.panel li{padding:12px 14px}
+.status{background:var(--color-paper-2);padding:10px 28px;font-size:10px}
+@media(min-width:721px) and (max-width:1180px){.ctl{gap:8px}.mark{margin-right:4px}.ctl .grow{display:none}.ctl input[type=search]{max-width:none}.kpi{padding:0 12px}.kpi dd small{display:block;margin:7px 0 0}}
+@media(max-width:900px){.plots,.geo{grid-template-columns:1fr}.geo .plot+.plot{border-left:0;padding:20px 0 0;border-top:1px solid var(--color-rule)}.plot+.plot{border-left:0;padding:20px 0 0;border-top:1px solid var(--color-rule)}.lede{grid-template-columns:minmax(180px,.7fr) 1.3fr;gap:24px}.deck-heading>span{display:none}}
+@media(max-width:720px){.ctl{position:relative;padding:16px}.mark{width:100%;margin-bottom:8px}.rail{padding:0 16px;gap:16px}.deck{width:calc(100% - 32px);margin-top:16px;padding:20px}.deck-heading{margin-bottom:24px}.lede{grid-template-columns:1fr;gap:20px}.claim{font-size:24px}.figure{font-size:64px}.kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:20px 16px}.kpi,.kpi:first-child,.kpi:last-child{padding:0;border:0}.kpi dd small{display:block;margin:6px 0 0}.plots,.geo{gap:20px}.geo{margin-top:20px;padding-top:20px}.plot h3 b{display:block;margin-top:6px}.stream-heading{padding:0 16px}.stream-heading span{display:none}main{padding-left:16px;padding-right:16px}.row{padding:12px 4px;column-gap:10px}.status{padding:12px 16px}.grid{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<div class="bar" id="bar" aria-hidden="true"></div>
+
+<div class="ctl">
+  <div class="mark"><span class="led" id="led" title="poll status"></span>
+    <b>Threat&nbsp;Desk</b><span id="opline">signals desk</span></div>
+  <input type="search" id="q" placeholder="Filter headlines" aria-label="Filter headlines">
+  <select id="win" aria-label="Time window">
+    <option value="6">6 hours</option>
+    <option value="24" selected>24 hours</option>
+    <option value="72">3 days</option>
+    <option value="168">7 days</option>
+    <option value="0">Everything retained</option>
+  </select>
+  <select id="view" aria-label="Layout">
+    <option value="river">River</option>
+    <option value="grid">By source</option>
+  </select>
+  <button class="btn" id="unseen" aria-pressed="false">Unread</button>
+  <button class="btn" id="pinned" aria-pressed="false">Pinned</button>
+  <div class="grow"></div>
+  <button class="btn" id="markall">Mark read</button>
+  <button class="btn" id="poll">Poll now</button>
+  <button class="btn" id="srcbtn">Sources</button>
+  <select id="theme" aria-label="Color theme" title="Color theme">
+    <option value="night">Theme: Midnight</option>
+    <option value="day">Theme: Daylight</option>
+    <option value="violet">Theme: Violet</option>
+    <option value="mint">Theme: Neon mint</option>
+    <option value="crimson">Theme: Crimson</option>
+    <option value="slate">Theme: Slate &amp; coral</option>
+  </select>
+</div>
+
+<nav class="rail" id="rail" role="tablist" aria-label="Coverage domains"></nav>
+
+<section class="deck" aria-label="Coverage summary">
+  <div class="deck-heading"><h2>Intelligence overview</h2><span>SECURITY / SYSTEMS / AI</span></div>
+  <div class="lede">
+    <div class="lead-metric"><span class="metric-label">Headlines in window</span><div class="figure tnum" id="figure">&#8211;</div></div>
+    <div>
+      <h1 class="claim" id="claim">Headlines pulled since the last poll.</h1>
+      <p class="qual" id="qual"></p>
+    </div>
+  </div>
+  <dl class="kpis" id="kpis"></dl>
+  <div class="plots">
+    <div class="plot"><h3 id="volh">Arrival volume</h3><div id="vol"></div></div>
+    <div class="plot"><h3 id="cath">Coverage by domain</h3><div id="cat"></div></div>
+  </div>
+  <div class="geo" id="geo" hidden>
+    <div class="plot">
+      <h3 id="geoh">Attack origins</h3>
+      <div id="map"></div>
+      <p class="geonote" id="geonote"></p>
+    </div>
+    <div class="plot" id="ports"></div>
+  </div>
+</section>
+
+<div class="stream-heading"><h2>Intelligence stream</h2><span>Latest reporting across your sources</span></div>
+<main id="out"><div class="void"><b>Loading snapshot&hellip;</b></div></main>
+
+<footer class="status" id="status"></footer>
+
+<dialog id="dlg" aria-label="Source inventory">
+  <header><h3>Source inventory <span id="dcount"></span></h3>
+    <button class="btn" id="dclose">Close</button></header>
+  <div class="scroll" id="dbody"></div>
+</dialog>
+
+<script>
+const FEEDS = {
+  "Cyber News": [
+    {n:"Krebs on Security", u:"https://krebsonsecurity.com/feed/"},
+    {n:"BleepingComputer", u:"https://www.bleepingcomputer.com/feed/"},
+    {n:"The Hacker News", u:"https://feeds.feedburner.com/TheHackersNews"},
+    {n:"The Record", u:"https://therecord.media/feed"},
+    {n:"SecurityWeek", u:"https://www.securityweek.com/feed/"},
+    {n:"Dark Reading", u:"https://www.darkreading.com/rss.xml"},
+    {n:"Schneier on Security", u:"https://www.schneier.com/feed/atom/"},
+    {n:"Graham Cluley", u:"https://grahamcluley.com/feed/"},
+    {n:"Risky Business News", u:"https://news.risky.biz/feed/"},
+    {n:"SANS Internet Storm Center", u:"https://isc.sans.edu/rssfeed_full.xml"},
+    {n:"Ars Technica Security", u:"https://arstechnica.com/security/feed/"},
+    {n:"Help Net Security", u:"https://www.helpnetsecurity.com/feed/"},
+    {n:"Infosecurity Magazine", u:"https://www.infosecurity-magazine.com/rss/news/"},
+    {n:"CyberScoop", u:"https://cyberscoop.com/feed/"},
+    {n:"Malwarebytes Labs", u:"https://www.malwarebytes.com/blog/feed/index.xml"},
+    {n:"Sophos News", u:"https://feeds.feedburner.com/sophos/dgdY"},
+    {n:"Google Project Zero", u:"https://googleprojectzero.blogspot.com/feeds/posts/default"},
+    {n:"Unit 42 (Palo Alto)", u:"https://unit42.paloaltonetworks.com/feed/"},
+    {n:"Cisco Talos", u:"https://blog.talosintelligence.com/rss/"},
+    {n:"Microsoft Security Blog", u:"https://www.microsoft.com/en-us/security/blog/feed/"},
+    {n:"Rapid7", u:"https://blog.rapid7.com/rss/"},
+    {n:"Securelist (Kaspersky)", u:"https://securelist.com/feed/"},
+    {n:"CrowdStrike Blog", u:"https://www.crowdstrike.com/en-us/blog/feed"},
+    {n:"ESET WeLiveSecurity", u:"https://www.welivesecurity.com/en/rss/feed/"},
+    {n:"Bitdefender Labs", u:"https://www.bitdefender.com/blog/api/rss/labs/"},
+    {n:"Tenable Blog", u:"https://www.tenable.com/blog/feed"},
+    {n:"Wiz Blog", u:"https://www.wiz.io/feed/rss.xml"},
+    {n:"Qualys Blog", u:"https://blog.qualys.com/feed"},
+    {n:"Citizen Lab", u:"https://citizenlab.ca/feed/"},
+    {n:"Have I Been Pwned", u:"https://feeds.feedburner.com/haveibeenpwnedlatestbreaches"}
+  ],
+  "Alerts & CVEs": [
+    {n:"CISA All Advisories", u:"https://www.cisa.gov/cybersecurity-advisories/all.xml"},
+    {n:"CISA Cybersecurity Advisories", u:"https://www.cisa.gov/cybersecurity-advisories/cybersecurity-advisories.xml"},
+    {n:"CISA ICS Advisories", u:"https://www.cisa.gov/cybersecurity-advisories/ics-advisories.xml"},
+    {n:"NCSC UK", u:"https://www.ncsc.gov.uk/api/1/services/v1/report-rss-feed.xml"},
+    {n:"CVE Feed (latest)", u:"https://cvefeed.io/rssfeed/latest.xml"},
+    {n:"Zero Day Initiative (published)", u:"https://www.zerodayinitiative.com/rss/published/"},
+    {n:"Zero Day Initiative (upcoming)", u:"https://www.zerodayinitiative.com/rss/upcoming/"},
+    {n:"Full Disclosure", u:"https://seclists.org/rss/fulldisclosure.rss"},
+    {n:"Exploit-DB", u:"https://www.exploit-db.com/rss.xml"},
+    {n:"Ubuntu Security Notices", u:"https://ubuntu.com/security/notices/rss.xml"},
+    {n:"MSRC Update Guide", u:"https://api.msrc.microsoft.com/update-guide/rss"},
+    {n:"Apple OS & Security Releases", u:"https://developer.apple.com/news/releases/rss/releases.rss"}
+  ],
+  "SysAdmin & Ops": [
+    {n:"The Register", u:"https://www.theregister.com/headlines.atom"},
+    {n:"Ars Technica IT", u:"https://feeds.arstechnica.com/arstechnica/technology-lab"},
+    {n:"Hacker News", u:"https://hnrss.org/frontpage"},
+    {n:"Cloudflare Blog", u:"https://blog.cloudflare.com/rss/"},
+    {n:"AWS News", u:"https://aws.amazon.com/blogs/aws/feed/"},
+    {n:"Google Cloud Blog", u:"https://cloudblog.withgoogle.com/rss/"},
+    {n:"Kubernetes Blog", u:"https://kubernetes.io/feed.xml"},
+    {n:"Docker Blog", u:"https://www.docker.com/blog/feed/"},
+    {n:"IT Notes", u:"https://it-notes.dragas.net/index.xml"},
+    {n:"ServeTheHome", u:"https://www.servethehome.com/feed/"},
+    {n:"Last Week in AWS", u:"https://www.lastweekinaws.com/feed/"},
+    {n:"Practical 365", u:"https://practical365.com/feed/"},
+    {n:"4sysops", u:"https://4sysops.com/feed/"},
+    {n:"Petri IT Knowledgebase", u:"https://petri.com/feed/"}
+  ],
+  "Microsoft": [
+    {n:"Microsoft 365 Blog", u:"https://www.microsoft.com/en-us/microsoft-365/blog/feed/"},
+    {n:"Windows Blogs", u:"https://blogs.windows.com/feed"},
+    {n:"Windows Insider", u:"https://blogs.windows.com/windows-insider/feed/"},
+    {n:"Windows IT Pro Blog", u:"https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=Windows-ITPro-Blog"},
+    {n:"Azure Updates", u:"https://www.microsoft.com/releasecommunications/api/v2/azure/rss"},
+    {n:"Microsoft 365 Roadmap", u:"https://www.microsoft.com/releasecommunications/api/v2/m365/rss"},
+    {n:"Microsoft Dev Blogs", u:"https://devblogs.microsoft.com/feed/"},
+    {n:"PowerShell Team", u:"https://devblogs.microsoft.com/powershell/feed/"},
+    {n:"Azure Infrastructure Blog", u:"https://techcommunity.microsoft.com/t5/s/gxcuf89792/rss/board?board.id=AzureInfrastructureBlog"},
+    {n:"Neowin", u:"https://www.neowin.net/news/rss/"},
+    {n:"Windows Central", u:"https://www.windowscentral.com/rss"}
+  ],
+  "Apple": [
+    {n:"Apple Newsroom", u:"https://www.apple.com/newsroom/rss-feed.rss"},
+    {n:"Apple Developer News", u:"https://developer.apple.com/news/rss/news.rss"},
+    {n:"Apple OS & Security Releases", u:"https://developer.apple.com/news/releases/rss/releases.rss"},
+    {n:"9to5Mac", u:"https://9to5mac.com/feed/"},
+    {n:"MacRumors", u:"https://feeds.macrumors.com/MacRumors-All"},
+    {n:"AppleInsider", u:"https://appleinsider.com/rss/news/"},
+    {n:"Six Colors", u:"https://sixcolors.com/feed/"},
+    {n:"Daring Fireball", u:"https://daringfireball.net/feeds/main"},
+    {n:"The Eclectic Light Company", u:"https://eclecticlight.co/feed/"},
+    {n:"Mr. Macintosh", u:"https://mrmacintosh.com/feed/"},
+    {n:"Michael Tsai", u:"https://mjtsai.com/blog/feed/"}
+  ],
+  "AI": [
+    {n:"OpenAI", u:"https://openai.com/news/rss.xml"},
+    {n:"Google DeepMind", u:"https://deepmind.google/blog/rss.xml"},
+    {n:"Google AI", u:"https://blog.google/technology/ai/rss/"},
+    {n:"Hugging Face", u:"https://huggingface.co/blog/feed.xml"},
+    {n:"Simon Willison", u:"https://simonwillison.net/atom/everything/"},
+    {n:"Import AI", u:"https://importai.substack.com/feed"},
+    {n:"Latent Space", u:"https://www.latent.space/feed"},
+    {n:"Ahead of AI", u:"https://magazine.sebastianraschka.com/feed"},
+    {n:"MIT Tech Review AI", u:"https://www.technologyreview.com/topic/artificial-intelligence/feed"},
+    {n:"The Verge AI", u:"https://www.theverge.com/rss/ai-artificial-intelligence/index.xml"},
+    {n:"Ars Technica AI", u:"https://arstechnica.com/ai/feed/"},
+    {n:"Microsoft Research", u:"https://www.microsoft.com/en-us/research/feed/"},
+    {n:"NVIDIA Blog", u:"https://blogs.nvidia.com/feed/"},
+    {n:"arXiv cs.AI", u:"https://export.arxiv.org/api/query?search_query=cat:cs.AI&sortBy=submittedDate&sortOrder=descending&max_results=40"},
+    {n:"arXiv cs.CR", u:"https://export.arxiv.org/api/query?search_query=cat:cs.CR&sortBy=submittedDate&sortOrder=descending&max_results=40"}
+  ]
+};
+
+/* World outline for the origins map: Natural Earth 110m (public domain),
+   Douglas-Peucker simplified to 1.5px and projected equirectangular into a
+   720x360 box. CENT is each country's largest-ring area centroid; the
+   micro-states Natural Earth has no polygon for but DShield does report
+   (SG and HK are top-15 sources) carry hand-entered coordinates. Inlined so
+   the page stays one portable file with no CDN and no network for geometry. */
+const MAPW=720,MAPH=360;
+const LAND="M428 182L438 189L438 197L441 201L439 202L429 203L427 199L421 197L419 193L421 182ZM343 125L343 128L336 128L334 137L326 138L330 137L337 126ZM114 82L105 78L99 71L100 68L89 60L85 62L78 59L78 41L87 42L104 39L142 45L144 43L148 42L157 45L165 43L168 45L172 42L167 40L170 36L174 37L179 43L184 43L185 46L189 40L195 41L197 42L197 46L188 47L172 58L171 62L174 62L175 66L195 70L196 73L200 78L203 75L200 71L207 67L203 62L205 60L204 55L212 55L221 58L221 62L225 64L231 59L236 67L245 71L249 76L240 80L227 80L218 86L230 82L232 83L230 84L231 88L237 88L239 86L240 88L229 93L228 91L231 89L226 90L224 86L222 85L217 90L210 90L195 97L195 89L183 83L170 81ZM200 34L199 32L207 34ZM166 22L169 23L165 24L163 22ZM184 31L166 26L198 29L199 31ZM249 77L246 80L253 82L254 87L252 84L249 86L241 85L245 79ZM192 50L200 53L186 53L188 49ZM202 35L222 39L226 42L222 43L236 46L232 50L224 47L231 53L222 53L228 56L210 51L205 52L203 51L204 49L212 49L215 45L213 44L202 40L183 39L180 36L188 32L187 34L188 35L195 32L199 36ZM171 32L179 32L169 36L168 33ZM114 28L128 25L126 27ZM95 72L97 72L98 76ZM149 21L161 24L150 23L152 23ZM117 31L129 33L114 38L108 36L112 33L110 31ZM144 28L148 28L147 30L136 31L132 31L136 30L125 30L129 27L142 29L139 27L141 26ZM147 34L151 38L158 40L155 41L155 42L133 43L125 40L135 39L124 39L128 37L121 37L130 33L140 34L144 37L143 34ZM159 35L157 33L159 32L165 32L164 34L167 35L163 37L155 35ZM163 27L164 30L155 29L155 27ZM168 19L175 17L188 21L174 23L172 22L174 21L167 20ZM177 16L201 14L236 15L218 20L206 21L209 23L199 28L181 27L184 26L183 24L190 25L184 23L190 21L186 19L196 19L185 19ZM210 45L206 45L208 43ZM114 82L170 81L183 83L195 89L195 97L210 90L217 90L222 85L224 86L226 90L220 93L218 95L220 97L209 101L208 106L207 102L206 104L209 109L197 117L199 130L193 120L187 119L181 120L181 122L171 121L166 124L165 128L158 121L152 121L147 116L126 115L119 111L111 99L111 84L115 86ZM54 64L56 65L51 66ZM78 41L78 59L85 62L89 60L100 68L99 70L92 64L80 61L66 58L57 62L59 57L43 68L30 71L43 66L46 62L36 63L35 60L29 59L29 56L38 52L38 50L30 51L24 49L37 48L28 42L47 37ZM535 82L530 86L526 85L525 89L520 90L521 95L508 93L502 95L497 99L493 98L490 93L484 93L477 89L472 90L472 97L465 96L461 91L466 89L466 86L458 87L453 83L455 79L457 80L462 77L483 78L480 76L483 74L483 72L498 69L507 73L514 71L520 78L527 78ZM472 97L472 90L477 89L484 93L490 93L497 99L502 95L501 97L506 98L495 101L496 106L477 94ZM642 185L655 192L654 195L661 201L656 200L649 195L645 199L642 198ZM665 187L666 190L661 185ZM663 192L657 191L664 188ZM642 185L642 198L635 197L637 195L636 191L626 188L624 186L627 184L621 182L628 182L631 187L635 183ZM596 172L595 174L598 178L596 178L592 188L580 186L578 179L579 176L581 178L588 178L592 171ZM619 186L622 188L616 187ZM606 178L610 177L609 179L600 181L602 183L607 181L603 184L606 191L603 189L602 185L600 191L598 186L600 180L602 177ZM577 193L591 197L573 195L571 194L572 192ZM569 182L572 186L572 192L569 192L551 169L555 170ZM223 285L230 289L223 290ZM245 240L243 249L246 254L242 257L235 258L235 262L230 262L233 265L225 271L229 274L222 281L224 285L216 284L213 279L218 270L216 265L223 229L227 224L231 226L234 224L244 230L243 234L249 235L252 231L253 234ZM223 285L223 290L226 290L224 291L211 286L218 288ZM221 215L226 226L219 243L220 248L216 265L218 270L213 279L216 284L223 285L217 288L210 285L209 277L212 274L209 273L215 265L211 266L213 254L217 245ZM419 189L421 197L417 197L417 204L419 207L414 203L404 202L403 195L395 196L393 192L384 192L392 187L399 170L405 172L411 169L419 171L422 176L420 179ZM443 183L442 174L450 170L458 161L458 157L462 156L457 169ZM438 189L428 182L430 176L428 172L431 169L436 173L444 172L442 174L443 183ZM409 164L404 155L406 149L408 149L408 140L410 140L410 136L434 136L437 144L434 146L428 163L425 156L423 160L410 159L408 163ZM408 141L408 149L406 149L404 155L406 158L396 164L391 165L388 161L391 160L387 151L390 147L392 139L390 134L392 133ZM217 141L217 144L211 143L215 143L214 140ZM217 144L217 140L223 143ZM458 87L453 91L457 96L456 98L440 93L433 90L438 86L437 85L439 84L440 81L431 79L428 75L424 76L423 74L425 73L422 69L416 68L415 63L418 60L416 59L423 54L420 53L420 48L418 46L420 45L417 42L424 40L442 45L437 48L426 47L430 48L430 51L434 52L434 50L439 51L444 47L448 48L447 43L452 44L454 45L451 46L453 47L467 42L480 43L482 42L481 40L497 44L498 43L494 41L493 38L500 34L506 36L504 37L507 43L503 47L505 48L510 44L507 41L509 39L506 37L509 34L513 38L512 36L515 35L523 36L521 33L534 32L532 31L534 30L569 25L588 28L579 32L614 33L623 38L625 36L640 37L638 35L641 34L678 38L682 41L699 43L702 42L701 40L720 42L720 50L715 51L718 55L707 57L701 60L687 60L684 64L686 65L684 70L674 78L672 66L689 55L680 59L679 56L673 57L668 60L670 62L644 62L630 71L643 74L640 83L630 93L622 96L622 90L626 90L630 83L622 84L615 80L612 74L607 73L600 74L601 76L596 81L589 80L577 81L558 76L555 81L544 78L535 82L527 78L520 78L514 71L507 73L498 69L483 72L483 74L480 76L483 78L462 77L457 80L455 79L453 83ZM548 18L560 20L560 22L550 22L542 19ZM566 21L570 23L559 24ZM638 28L650 29L638 31L634 29ZM405 71L399 71L403 70ZM467 33L482 27L498 27L477 31L471 35L475 39L463 37L469 33ZM646 73L649 82L646 81L645 84L647 88L644 88L643 73ZM10 46L20 48L15 49L14 51L3 48L0 50L0 42ZM3 38L0 37L5 37ZM427 88L433 89L428 91L425 89ZM390 21L403 22L392 26L381 21ZM422 41L417 42L418 40L415 40L409 43L402 41L396 43L385 52L385 60L382 62L371 63L370 56L398 40L416 38L423 39L420 40ZM415 20L406 21L395 19ZM266 15L306 13L318 15L297 16L336 17L320 20L325 20L321 22L323 26L317 27L320 28L319 30L321 31L313 33L315 36L310 35L316 39L309 37L307 40L315 40L280 49L274 55L273 60L270 60L263 58L257 53L252 46L258 40L251 41L251 38L257 39L248 37L251 35L243 29L223 28L217 26L226 25L213 24L229 21L224 20L235 16L271 17ZM498 277L501 279L497 280ZM393 237L400 237L400 230L403 233L407 231L411 231L419 224L422 225L424 229L421 233L426 233L416 246L400 250L397 248ZM418 238L416 241L414 240ZM126 115L147 116L152 121L157 120L162 127L166 128L164 135L168 142L177 142L179 138L186 137L184 143L178 144L179 148L177 148L176 151L172 148L167 149L153 143L134 118L130 116L131 120L141 133L140 134L130 125L132 123ZM245 240L252 244L252 249L243 248ZM253 248L252 244L245 240L253 232L248 225L244 224L244 213L240 213L239 208L229 203L229 200L219 202L219 199L216 200L212 195L214 191L220 189L220 177L225 176L229 178L233 176L230 172L239 170L242 177L248 175L254 176L257 172L260 177L259 180L270 183L271 185L280 186L289 190L291 195L283 206L278 224L265 230L262 237ZM221 202L229 200L229 203L239 208L240 213L244 213L244 220L236 219L235 224L227 224L224 226L221 215L223 205ZM220 189L214 191L212 195L216 200L219 199L219 202L223 205L222 213L219 217L208 209L197 189L199 187L199 189L203 189L210 180L214 185L220 185ZM226 177L220 177L220 189L220 185L214 185L210 180L205 179L202 177L206 172L205 163L210 158L217 155L213 162L216 166L225 168L224 174ZM205 163L204 166L202 162L198 166L194 164L194 161ZM195 161L194 164L188 158L193 158ZM193 158L189 158L185 154L194 150ZM194 150L185 154L181 151L184 148ZM181 151L184 154L180 153ZM176 151L177 148L179 148L178 144L182 144L182 148L184 149L181 151ZM182 144L184 143L182 148ZM239 170L230 172L233 176L227 179L224 174L225 168L216 166L214 159L217 156L216 160L217 162L217 158L220 156L224 159L236 159L235 160L240 163L237 168ZM247 176L241 176L240 170L237 168L240 163L246 168L244 172ZM251 175L247 176L245 173L246 168L252 168ZM257 172L254 176L251 175L252 168ZM372 81L376 82L372 87L375 93L364 95L356 93L358 88L351 83L357 83L356 80L365 78ZM209 180L203 189L199 189L200 178L202 177ZM195 134L212 139L204 140L206 139L203 137L196 135L190 136ZM422 225L416 223L411 215L414 216L421 211L426 213L425 221ZM419 224L411 231L407 231L403 233L400 230L402 217L411 215ZM400 230L400 237L393 237L383 215L410 215L402 217ZM327 153L325 151L331 147L336 151L337 155L327 155L326 154L332 153ZM337 155L337 149L349 149L347 130L369 142L367 149L352 153L349 159L344 160L342 155ZM326 138L334 137L336 128L343 128L343 125L350 130L347 130L349 149L336 151L331 147L327 148ZM365 167L364 168L362 159L366 156L368 159ZM390 134L392 139L390 147L387 151L388 155L386 153L378 154L371 152L368 153L367 157L362 154L361 150L367 149L369 142L384 133ZM365 167L369 153L378 154L386 153L389 156L383 166L378 167L377 170L372 171L369 167ZM389 154L391 160L388 161L391 165L389 171L392 177L379 175L378 169L380 166L383 166ZM362 158L364 168L362 168L360 159ZM360 158L362 168L354 170L354 158ZM344 160L354 161L354 170L345 171L343 167ZM333 155L342 155L343 165L339 163L338 160L334 162L330 158ZM327 155L333 155L333 156L330 158ZM343 165L345 171L337 166L340 163ZM334 162L338 160L340 163L337 166ZM349 159L351 154L358 150L361 150L362 154L364 155L362 158L354 158L354 161ZM415 170L405 172L399 170L392 175L389 169L391 165L396 164L406 158L407 162ZM397 173L392 187L389 190L384 190L383 186L388 185L389 183L386 175L392 177L394 173ZM383 175L389 178L389 183L382 188L378 182ZM379 175L383 175L383 178L379 178ZM421 197L426 199L426 208L420 210L414 216L406 215L404 212L404 206L408 206L408 202L419 207L417 204L417 198ZM426 198L429 200L429 207L431 209L430 214L429 209L425 207ZM429 203L441 201L442 209L430 220L431 228L424 233L422 225L425 221L426 213L421 212L420 210L426 208L430 214L431 209ZM424 233L421 233L422 231ZM385 192L393 192L395 196L403 195L404 202L408 202L408 206L404 206L404 212L406 215L383 215L387 203ZM421 185L419 189L418 186ZM431 115L430 121L429 118ZM459 205L461 211L454 230L451 231L447 226L448 215ZM379 119L375 112L379 105L382 106L380 111L383 114ZM343 125L343 122L357 115L356 110L358 109L377 106L375 112L380 121L379 128L384 133L366 142ZM431 115L438 113L438 116L434 117L436 119L432 122L430 121ZM463 132L468 132L473 129L470 135L464 134ZM456 120L457 123L453 122ZM438 116L438 113L442 111L443 107L450 106L452 109L451 112L457 120L449 122ZM470 135L473 130L480 135L475 142L466 147L464 142L470 140ZM565 156L566 152L573 151L575 153L572 158L567 159ZM570 151L566 152L565 156L560 153L558 162L564 168L562 169L556 163L559 156L555 143L560 139L563 141L562 145L566 143L569 145ZM575 152L570 151L568 144L562 145L563 141L560 139L564 138L563 135L569 138L568 141L575 148ZM560 139L555 143L559 156L557 160L554 146L548 148L549 144L545 137L550 127L556 123L557 128L555 132L562 136ZM569 159L575 155L575 150L568 141L569 138L564 135L571 133L576 137L571 142L578 149L578 157L570 163ZM621 95L615 100L616 103L609 104L610 99L620 94ZM612 105L617 103L618 110L613 111ZM536 81L544 78L555 81L558 76L577 81L593 80L591 85L600 86L584 90L581 94L570 97L553 95L551 92L542 89L542 86ZM555 123L554 126L550 127L545 136L544 133L542 133L545 130L537 127L538 137L534 137L521 148L520 159L515 164L507 148L505 137L501 138L496 133L502 131L499 126L504 124L511 115L507 111L516 109L518 111L517 117L522 120L520 122L527 125L536 127L537 124L539 127L544 126L543 124L552 121ZM545 136L545 139L543 134L538 136L537 127L545 130L542 133L544 133ZM543 124L544 126L538 126L540 123ZM536 124L534 127L520 122L523 119ZM516 109L507 111L511 115L504 124L499 126L502 131L496 133L493 129L483 130L487 126L482 120L493 120L494 117L499 116L504 107L510 106ZM493 105L498 106L502 103L504 107L510 106L503 108L499 116L494 117L493 120L482 120L484 119L481 114L482 109L486 109ZM496 106L495 101L501 98L499 101L507 101L510 105L504 107L502 103ZM502 95L508 93L521 95L504 101L499 101L506 98L501 97ZM465 96L474 97L477 94L493 105L484 109L475 104L468 106L465 100L469 98ZM457 120L451 112L452 109L448 101L452 103L456 101L458 105L465 107L475 104L482 107L481 114L484 119L482 120L487 126L483 130L475 129L474 126L467 126L460 120ZM431 115L433 106L445 106L442 111ZM453 102L447 98L451 98ZM382 62L385 57L384 54L394 44L401 42L407 44L408 48L396 55L394 57L398 60L394 63L392 68L386 69ZM416 68L422 69L425 73L423 74L424 76L407 77L407 72ZM424 76L428 75L431 79L440 81L439 84L430 89L423 87L417 89L418 87L420 87L417 84L404 83L408 79L407 77ZM407 72L408 79L406 82L392 79L388 74L395 70ZM394 84L389 87L379 86L386 85L387 82ZM404 83L405 84L402 87L397 88L392 86L394 84ZM413 84L417 84L420 87L416 89ZM416 89L419 89L417 93L406 92L400 88L406 84L413 84ZM413 69L407 72L402 68ZM415 65L416 68L413 69L402 68L405 64ZM416 61L415 65L409 64L407 62ZM388 72L390 78L384 79L387 82L386 85L375 85L376 82L372 80L374 73L380 70ZM405 92L417 93L416 96L406 97ZM406 97L413 97L405 99L408 105L406 104L405 107L400 101ZM450 106L433 106L432 108L429 106L419 108L415 107L412 101L427 96L437 98L445 97L450 101ZM412 96L418 97L413 100ZM402 98L400 101L399 99L399 95ZM393 87L399 90L392 90L397 95L387 90ZM379 85L380 87L372 87L373 85ZM372 78L371 81L365 78ZM374 73L372 78L367 77L369 74ZM342 96L347 97L344 106L342 106L341 103ZM345 106L347 97L342 96L341 94L344 93L366 95L356 107L349 108ZM348 72L346 75L340 76L341 72L345 70L345 72ZM714 260L709 263L710 261L708 259L709 255L705 249L712 255L717 255ZM699 267L706 261L708 263L706 268L699 273L693 272ZM655 262L656 266L652 267L649 261ZM612 244L607 248L596 250L590 248L592 244L587 232L588 233L587 225L602 219L611 208L619 210L625 202L633 204L631 210L640 215L645 201L648 209L651 210L653 218L661 225L667 236L660 255L653 258L650 256L647 258L641 256L636 251L636 249L634 251L636 246L632 250L629 245L623 243ZM524 165L521 168L520 160ZM579 144L577 141L582 140ZM521 95L520 90L536 81L542 86L542 89L551 92L553 95L570 97L578 95L584 93L584 90L599 87L596 84L591 84L593 80L599 80L601 76L600 74L604 73L612 74L615 80L622 84L630 83L626 90L622 90L621 95L620 94L602 102L603 98L595 103L599 106L605 105L598 110L604 117L603 124L597 131L582 137L581 139L571 133L563 135L564 138L558 136L557 132L555 132L557 125L552 123L552 121L538 125L517 117L518 111L512 108L507 101ZM604 131L601 136L600 133L603 129ZM381 86L388 87L388 89L385 89L385 92L397 100L394 99L394 102L391 104L391 100L380 92L375 93L374 88ZM390 104L391 104L390 107L385 105ZM377 98L380 99L378 102ZM380 70L377 70L376 67L381 65ZM385 68L384 70L382 69ZM348 72L345 72L345 70L349 71ZM354 73L348 66L350 63L354 63L352 65L356 65L354 68L363 75L361 78L350 80L353 77L349 76L352 75L351 73ZM331 47L333 50L323 53L314 52L316 51L312 50L316 49L311 49ZM453 96L457 96L461 99L458 103L456 101L453 102L451 100L450 98L453 98ZM440 93L451 95L453 98L443 97ZM605 160L608 158L606 162ZM613 163L611 169L607 164L604 166L611 160ZM597 161L594 163L599 157ZM605 144L603 151L608 152L608 155L601 152L600 149L601 143ZM604 157L606 157L604 159ZM611 156L610 160L609 155ZM560 167L566 169L568 177L563 174ZM596 172L592 171L589 177L580 177L591 171L593 166L598 169ZM388 87L393 87L391 89L387 89ZM417 42L420 45L418 46L422 55L416 59L406 60L403 59L403 54L411 50L407 47L407 44L401 42L409 43L415 40L418 40ZM405 82L396 84L394 83L397 81ZM390 78L398 81L389 83L384 79ZM433 151L434 146L437 144L446 155L440 151ZM644 102L641 110L632 113L630 111L622 112L624 114L623 117L620 117L619 113L625 109L631 109L633 105L639 104L641 98L643 97ZM649 92L651 91L651 93L646 96L643 95L640 97L644 89ZM625 113L630 112L626 115ZM244 220L244 224L248 225L249 228L251 228L249 235L243 234L244 230L235 224L236 219ZM464 142L466 147L464 149L447 155L445 150L447 145L454 146ZM430 121L435 120L434 117L438 116L449 122L455 122L460 127L464 134L470 135L470 140L458 143L454 146L447 145L446 147L429 124ZM263 336L272 337L273 340L252 341ZM227 341L241 340L240 342ZM212 323L216 322L217 319L219 318L223 323L215 325L210 324ZM720 349L720 360L0 360L0 349L2 348L74 350L53 347L54 344L46 342L67 341L49 338L43 334L57 335L68 333L68 331L70 330L132 327L135 329L159 331L153 325L210 328L225 325L223 319L225 315L244 307L236 310L236 312L229 316L236 321L238 327L219 333L206 333L213 336L204 338L244 346L303 341L301 339L289 339L289 336L325 330L329 329L327 328L329 326L346 322L360 323L375 320L382 322L387 320L414 321L428 317L437 320L469 312L483 316L498 316L499 318L496 321L498 321L496 324L500 325L508 320L536 312L552 315L559 314L566 311L572 314L587 312L600 315L630 312L630 311L635 314L651 314L658 317L702 323L687 332L689 336L694 338L684 338L680 342L699 348ZM356 110L357 115L343 122L342 126L337 126L330 137L326 137L331 127L341 120L343 114L348 108ZM434 136L410 136L410 117L429 118L428 124L425 120ZM410 136L410 140L408 141L392 133L388 135L381 131L379 128L380 117L383 114L398 119L402 115L410 116ZM456 164L450 170L439 173L432 171L426 164L433 151L436 150L443 153L444 158L447 162ZM445 155L447 155L446 158L444 158ZM458 157L456 164L447 162L445 159L446 157L448 159ZM428 182L419 183L422 172L429 173L430 176ZM421 182L422 185L418 186ZM397 95L392 90L399 90ZM405 95L406 97L401 98ZM398 88L405 91L405 95L398 93ZM400 95L397 95L398 93ZM401 96L401 94L404 95ZM422 173L416 171L408 163L412 159L414 161L423 160L424 156L426 156L428 163L426 164L431 169L427 172Z";
+const CENT={"FJ":[716.0,215.7],"TZ":[429.5,192.5],"EH":[335.7,131.4],"CA":[156.9,64.5],"US":[161.9,101.0],"KZ":[494.6,83.6],"UZ":[486.4,96.5],"PG":[648.7,193.3],"ID":[588.0,180.5],"AR":[229.7,250.4],"CL":[216.7,254.7],"CD":[407.2,185.7],"SO":[451.5,170.5],"KE":[435.6,178.8],"SD":[419.7,148.0],"TD":[397.2,149.3],"HT":[214.7,142.2],"DO":[219.1,142.2],"RU":[558.4,56.6],"BS":[204.2,131.0],"FK":[241.2,283.4],"NO":[388.5,50.9],"GL":[277.0,30.5],"TF":[499.1,278.6],"TL":[611.9,197.5],"ZA":[410.2,237.9],"LS":[416.3,239.3],"MX":[154.8,132.1],"UY":[248.0,245.6],"BR":[253.9,201.6],"BO":[230.7,213.5],"PE":[211.2,198.4],"CO":[213.8,172.1],"PA":[199.8,162.9],"CR":[191.6,160.1],"NI":[190.0,154.3],"HN":[186.8,150.4],"SV":[182.3,152.5],"GT":[179.3,148.6],"BZ":[182.6,145.6],"VE":[227.7,165.7],"GY":[242.1,170.4],"SR":[248.2,171.8],"FR":[364.7,86.8],"EC":[203.2,182.9],"PR":[227.0,143.5],"JM":[205.4,143.7],"CU":[202.1,136.7],"ZW":[419.6,217.8],"BW":[407.5,224.2],"NA":[394.3,224.2],"SN":[331.0,151.3],"ML":[352.9,145.5],"MR":[339.3,139.6],"BJ":[364.7,160.7],"NE":[378.6,145.3],"NG":[376.0,160.9],"CM":[385.2,168.7],"TG":[362.0,163.1],"GH":[357.5,164.1],"CI":[348.8,164.9],"GN":[337.9,159.1],"GW":[329.8,156.0],"LR":[341.2,167.1],"SL":[336.4,162.9],"BF":[356.4,155.4],"CF":[400.7,166.9],"CG":[390.3,181.7],"GA":[383.4,181.3],"GQ":[380.7,176.7],"ZM":[415.5,206.8],"MW":[428.4,206.3],"MZ":[430.9,214.5],"SZ":[422.8,233.0],"AO":[395.0,204.6],"BI":[419.8,186.8],"IL":[430.0,117.0],"LB":[431.7,112.2],"MG":[453.4,218.7],"PS":[430.5,116.1],"GM":[329.1,153.0],"TN":[379.1,111.7],"DZ":[365.2,123.6],"JO":[433.6,117.5],"AE":[468.4,132.3],"QA":[462.4,129.4],"KW":[455.2,121.4],"IQ":[447.5,113.9],"OM":[472.2,138.8],"VU":[693.8,210.4],"KH":[569.8,154.6],"TH":[562.0,150.0],"LA":[567.5,143.1],"MM":[553.0,138.0],"VN":[572.6,146.7],"KP":[614.3,99.7],"KR":[615.6,107.1],"MN":[565.9,86.4],"IN":[519.2,134.1],"BD":[540.5,132.3],"BT":[540.9,125.1],"NP":[528.0,123.5],"PK":[498.8,120.1],"AF":[492.2,112.3],"TJ":[502.1,102.8],"KG":[509.2,97.0],"TM":[478.6,101.8],"IR":[468.6,115.0],"SY":[437.1,110.0],"AM":[450.0,99.6],"SE":[393.2,54.4],"BY":[416.0,73.0],"UA":[422.5,81.7],"PL":[398.6,75.7],"AT":[388.2,84.8],"HU":[398.7,85.6],"MD":[416.8,85.6],"RO":[409.9,88.3],"LT":[407.8,69.4],"LV":[409.7,66.4],"EE":[411.6,62.7],"DE":[380.6,77.7],"BG":[410.4,94.5],"GR":[405.1,101.3],"TR":[430.8,102.0],"AL":[400.1,97.7],"HR":[393.1,90.0],"CH":[376.2,86.4],"LU":[371.9,80.5],"BE":[369.2,78.7],"NL":[371.0,75.4],"PT":[343.9,100.7],"ES":[352.8,99.3],"IE":[344.0,73.6],"NC":[691.1,222.5],"SB":[678.2,195.8],"NZ":[701.0,268.0],"AU":[628.8,231.1],"LK":[521.3,164.6],"CN":[567.7,106.8],"CN-TW":[601.9,132.5],"IT":[384.4,93.1],"DK":[378.6,67.6],"GB":[354.7,72.2],"IS":[322.5,49.9],"AZ":[455.4,99.4],"GE":[447.0,95.7],"PH":[603.1,148.5],"MY":[589.4,172.9],"BN":[589.8,170.6],"SI":[389.9,87.7],"FI":[412.4,51.0],"SK":[399.0,82.5],"CZ":[390.7,80.4],"ER":[437.4,149.1],"JP":[633.8,108.0],"PY":[243.2,226.5],"YE":[455.1,148.2],"SA":[449.0,131.8],"AQ":[232.0,310.0],"CY":[426.1,110.2],"MA":[343.2,120.2],"EG":[419.7,127.0],"LY":[395.9,126.0],"ET":[439.1,162.7],"DJ":[445.0,156.5],"UG":[424.7,177.4],"RW":[419.8,184.0],"BA":[395.6,91.6],"MK":[403.4,96.8],"RS":[401.6,91.5],"ME":[398.6,94.4],"XK":[401.8,94.8],"TT":[237.3,159.1],"SS":[420.4,165.4],"AD":[363.0,95.0],"AG":[236.4,145.9],"AI":[233.9,143.6],"AS":[18.6,208.6],"AW":[220.1,155.0],"AX":[399.9,59.6],"BB":[240.9,153.6],"BH":[461.1,127.9],"BL":[234.3,144.2],"BM":[230.5,115.4],"BQ":[223.5,155.6],"CK":[40.4,222.5],"CV":[313.0,150.1],"CW":[222.0,155.7],"DM":[237.3,149.2],"FM":[676.3,166.2],"FO":[346.2,56.0],"GD":[236.6,155.9],"GF":[253.7,172.1],"GG":[354.9,81.1],"GI":[349.3,107.7],"GP":[236.9,147.5],"GU":[649.6,153.1],"HK":[588.3,135.4],"IM":[350.9,71.5],"JE":[355.8,81.6],"KI":[706.0,176.3],"KM":[446.7,203.3],"KN":[234.5,145.3],"KY":[197.2,141.4],"LC":[238.0,152.2],"LI":[379.1,85.7],"MC":[374.8,92.5],"MF":[233.8,143.8],"MH":[702.4,165.8],"MO":[587.1,135.6],"MP":[651.5,149.6],"MQ":[238.0,150.7],"MT":[389.0,108.2],"MU":[475.1,220.7],"MV":[507.0,171.6],"NR":[693.9,181.0],"PF":[60.9,215.4],"PM":[247.3,86.1],"RE":[471.1,222.2],"SC":[471.0,189.4],"SG":[567.6,177.3],"SH":[348.6,211.9],"SM":[384.9,92.1],"ST":[373.2,179.6],"SX":[233.9,143.9],"TC":[216.4,136.6],"TO":[9.6,222.4],"TW":[601.9,132.6],"VC":[237.5,153.5],"VG":[230.8,143.2],"VI":[230.2,143.3],"WS":[15.8,207.5],"YT":[450.3,205.7]};
+const CNAME={"FJ":"Fiji","TZ":"Tanzania","EH":"W. Sahara","CA":"Canada","US":"United States of America","KZ":"Kazakhstan","UZ":"Uzbekistan","PG":"Papua New Guinea","ID":"Indonesia","AR":"Argentina","CL":"Chile","CD":"Dem. Rep. Congo","SO":"Somalia","KE":"Kenya","SD":"Sudan","TD":"Chad","HT":"Haiti","DO":"Dominican Rep.","RU":"Russia","BS":"Bahamas","FK":"Falkland Is.","NO":"Norway","GL":"Greenland","TF":"Fr. S. Antarctic Lands","TL":"Timor-Leste","ZA":"South Africa","LS":"Lesotho","MX":"Mexico","UY":"Uruguay","BR":"Brazil","BO":"Bolivia","PE":"Peru","CO":"Colombia","PA":"Panama","CR":"Costa Rica","NI":"Nicaragua","HN":"Honduras","SV":"El Salvador","GT":"Guatemala","BZ":"Belize","VE":"Venezuela","GY":"Guyana","SR":"Suriname","FR":"France","EC":"Ecuador","PR":"Puerto Rico","JM":"Jamaica","CU":"Cuba","ZW":"Zimbabwe","BW":"Botswana","NA":"Namibia","SN":"Senegal","ML":"Mali","MR":"Mauritania","BJ":"Benin","NE":"Niger","NG":"Nigeria","CM":"Cameroon","TG":"Togo","GH":"Ghana","CI":"C\u00f4te d'Ivoire","GN":"Guinea","GW":"Guinea-Bissau","LR":"Liberia","SL":"Sierra Leone","BF":"Burkina Faso","CF":"Central African Rep.","CG":"Congo","GA":"Gabon","GQ":"Eq. Guinea","ZM":"Zambia","MW":"Malawi","MZ":"Mozambique","SZ":"eSwatini","AO":"Angola","BI":"Burundi","IL":"Israel","LB":"Lebanon","MG":"Madagascar","PS":"Palestine","GM":"Gambia","TN":"Tunisia","DZ":"Algeria","JO":"Jordan","AE":"United Arab Emirates","QA":"Qatar","KW":"Kuwait","IQ":"Iraq","OM":"Oman","VU":"Vanuatu","KH":"Cambodia","TH":"Thailand","LA":"Laos","MM":"Myanmar","VN":"Vietnam","KP":"North Korea","KR":"South Korea","MN":"Mongolia","IN":"India","BD":"Bangladesh","BT":"Bhutan","NP":"Nepal","PK":"Pakistan","AF":"Afghanistan","TJ":"Tajikistan","KG":"Kyrgyzstan","TM":"Turkmenistan","IR":"Iran","SY":"Syria","AM":"Armenia","SE":"Sweden","BY":"Belarus","UA":"Ukraine","PL":"Poland","AT":"Austria","HU":"Hungary","MD":"Moldova","RO":"Romania","LT":"Lithuania","LV":"Latvia","EE":"Estonia","DE":"Germany","BG":"Bulgaria","GR":"Greece","TR":"Turkey","AL":"Albania","HR":"Croatia","CH":"Switzerland","LU":"Luxembourg","BE":"Belgium","NL":"Netherlands","PT":"Portugal","ES":"Spain","IE":"Ireland","NC":"New Caledonia","SB":"Solomon Is.","NZ":"New Zealand","AU":"Australia","LK":"Sri Lanka","CN":"China","CN-TW":"Taiwan","IT":"Italy","DK":"Denmark","GB":"United Kingdom","IS":"Iceland","AZ":"Azerbaijan","GE":"Georgia","PH":"Philippines","MY":"Malaysia","BN":"Brunei","SI":"Slovenia","FI":"Finland","SK":"Slovakia","CZ":"Czechia","ER":"Eritrea","JP":"Japan","PY":"Paraguay","YE":"Yemen","SA":"Saudi Arabia","AQ":"Antarctica","CY":"Cyprus","MA":"Morocco","EG":"Egypt","LY":"Libya","ET":"Ethiopia","DJ":"Djibouti","UG":"Uganda","RW":"Rwanda","BA":"Bosnia and Herz.","MK":"North Macedonia","RS":"Serbia","ME":"Montenegro","XK":"Kosovo","TT":"Trinidad and Tobago","SS":"S. Sudan","AD":"Andorra","AG":"Antigua and Barbuda","AI":"Anguilla","AS":"American Samoa","AW":"Aruba","AX":"Aland Islands","BB":"Barbados","BH":"Bahrain","BL":"Saint Barthelemy","BM":"Bermuda","BQ":"Caribbean Netherlands","CK":"Cook Islands","CV":"Cabo Verde","CW":"Curacao","DM":"Dominica","FM":"Micronesia","FO":"Faroe Islands","GD":"Grenada","GF":"French Guiana","GG":"Guernsey","GI":"Gibraltar","GP":"Guadeloupe","GU":"Guam","HK":"Hong Kong","IM":"Isle of Man","JE":"Jersey","KI":"Kiribati","KM":"Comoros","KN":"Saint Kitts and Nevis","KY":"Cayman Islands","LC":"Saint Lucia","LI":"Liechtenstein","MC":"Monaco","MF":"Saint Martin","MH":"Marshall Islands","MO":"Macao","MP":"Northern Mariana Islands","MQ":"Martinique","MT":"Malta","MU":"Mauritius","MV":"Maldives","NR":"Nauru","PF":"French Polynesia","PM":"Saint Pierre and Miquelon","RE":"Reunion","SC":"Seychelles","SG":"Singapore","SH":"Saint Helena","SM":"San Marino","ST":"Sao Tome and Principe","SX":"Sint Maarten","TC":"Turks and Caicos Islands","TO":"Tonga","TW":"Taiwan","VC":"Saint Vincent and the Grenadines","VG":"British Virgin Islands","VI":"U.S. Virgin Islands","WS":"Samoa","YT":"Mayotte"};
+
+var EMBED={t:0,items:[],health:[],poll:null}; /*__EMBED__*/
+
+/* ── operator label ────────────────────────────────────────────────
+   Put your name between the quotes and it appears in the masthead and
+   the status line. Left blank, the desk just reads "signals desk".   */
+const OPERATOR = "";
+
+const LS={seen:'td.seen',pin:'td.pin',off:'td.off',cache:'td.cache',
+          lights:'td.lights',tab:'td.tab',view:'td.view',attack:'td.attack'};
+const load=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}};
+const save=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+
+let seen=new Set(load(LS.seen,[]));
+let pin=new Map(load(LS.pin,[]));
+let off=new Set(load(LS.off,[]));
+let items=[], health=[], poll=null, stamp=0;
+let feedState={};
+let tab=load(LS.tab,'ALL'), unseenOnly=false, pinnedOnly=false;
+
+const CATS=Object.keys(FEEDS);
+let attack=null;      // DShield telemetry: fetched live, snapshot only primes it
+const ALLFEEDS=CATS.flatMap(c=>FEEDS[c].map(f=>({...f,cat:c})));
+const el=id=>document.getElementById(id);
+const CVE=/CVE-\d{4}-\d{4,7}/i;
+/* short domain codes so the source column stays one dense line */
+const CODE={'Cyber News':'CYB','Alerts & CVEs':'ADV','SysAdmin & Ops':'OPS',
+            'Microsoft':'MS','Apple':'APL','AI':'AI'};
+const code=c=>CODE[c]||c.slice(0,3).toUpperCase();
+
+const PROXIES=[u=>u,u=>'https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(u)];
+const T=(u,ms=9000)=>fetch(u,{redirect:'follow',signal:AbortSignal.timeout(ms)});
+
+async function grab(url){
+  let lastErr='';
+  for(const p of PROXIES){
+    const target=p(url);
+    try{
+      const r=await T(target);
+      if(!r.ok){lastErr='HTTP '+r.status;continue}
+      const t=await r.text();
+      if(t.length<80){lastErr='empty';continue}
+      if(target.includes('rss2json')){
+        const j=JSON.parse(t);
+        if(j.status!=='ok'){lastErr=(j.message||'rss2json error').slice(0,60);continue}
+        return {json:j};
+      }
+      return t;
+    }catch(e){lastErr=(e.name==='TimeoutError'?'timeout':e.message)||'fetch failed'}
+  }
+  throw new Error(lastErr||'unreachable');
+}
+
+const pickText=(e,...names)=>{
+  for(const n of names){const x=e.querySelector(n);if(x&&x.textContent.trim())return x.textContent.trim()}
+  return '';
+};
+function linkOf(e){
+  const a=[...e.querySelectorAll('link')];
+  const alt=a.find(l=>l.getAttribute('rel')==='alternate'&&l.getAttribute('href'));
+  if(alt)return alt.getAttribute('href');
+  const h=a.find(l=>l.getAttribute('href'));
+  if(h)return h.getAttribute('href');
+  const t=a.find(l=>l.textContent.trim());
+  return t?t.textContent.trim():pickText(e,'guid');
+}
+const strip=s=>s.replace(/<[^>]*>/g,' ').replace(/&[a-z#0-9]+;/gi,' ').replace(/\s+/g,' ').trim();
+
+function parse(raw,feed){
+  if(raw&&raw.json)
+    return (raw.json.items||[]).map(i=>mk(i.title,i.link,i.pubDate,i.description,feed));
+  const doc=new DOMParser().parseFromString(raw,'text/xml');
+  const nodes=[...doc.querySelectorAll('item,entry')];
+  if(!nodes.length)throw new Error('no items');
+  return nodes.map(e=>node(e,feed)).filter(Boolean);
+}
+function node(e,feed){
+  const title=pickText(e,'title');
+  if(!title)return null;
+  return mk(title,linkOf(e),pickText(e,'pubDate','published','updated','date'),
+            pickText(e,'description','summary','content'),feed);
+}
+function mk(title,link,date,gist,feed){
+  let t=Date.parse(date||'')||0;
+  if(t>Date.now())t=Date.now();
+  return {id:(feed.n+'|'+(link||title)).slice(0,300),title:strip(title).slice(0,300),
+          link:link||'',ts:t,sum:strip(gist||'').slice(0,320),src:feed.n,cat:feed.cat};
+}
+
+let polling=false;
+async function repoll(){
+  if(polling)return;
+  polling=true;
+  el('poll').disabled=true;
+  const active=ALLFEEDS.filter(f=>!off.has(f.u));
+  const queue=[...active];
+  let done=0,ok=0;
+  const t0=Date.now();
+  el('led').dataset.s='busy';
+  const worker=async()=>{
+    while(queue.length){
+      const f=queue.shift();
+      try{
+        const got=parse(await grab(f.u),f);
+        items=items.filter(i=>i.src!==f.n).concat(got);
+        feedState[f.n]={ok:1,items:got.length};ok++;
+      }catch(e){feedState[f.n]={ok:0,err:e.message}}
+      done++;
+      el('bar').style.width=(done/active.length*100)+'%';
+      el('status').innerHTML='<span>polling <b>'+done+'</b>/'+active.length+' sources…</span>';
+      if(done%6===0)draw();
+    }
+  };
+  await Promise.all(Array.from({length:8},worker));
+  dedupe();
+  health=active.map(f=>({n:f.n,cat:f.cat,ok:feedState[f.n]&&feedState[f.n].ok?1:0,
+                         items:(feedState[f.n]||{}).items||0,ms:0,
+                         err:(feedState[f.n]||{}).err||''}));
+  poll={sources:active.length,live:ok,seconds:+((Date.now()-t0)/1000).toFixed(1),
+        median_ms:0,retain_days:14,browser:1};
+  stamp=Date.now();
+  save(LS.cache,{t:stamp,items:items.slice(0,4000),health,poll});
+  el('led').dataset.s=ok?'':'err';
+  el('bar').style.width='0';
+  el('poll').disabled=false;
+  polling=false;
+  draw();
+  refreshAttack();
+}
+function dedupe(){
+  const keys=new Set(),out=[];
+  for(const i of items.sort((a,b)=>b.ts-a.ts)){
+    const k=i.title.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,70);
+    if(k&&keys.has(k))continue;
+    keys.add(k);out.push(i);
+  }
+  items=out;
+}
+
+const hours=()=>+el('win').value;
+const windowStart=()=>{const h=hours();return h?Date.now()-h*36e5:0};
+function inWindow(){
+  const cut=windowStart();
+  return items.filter(i=>!cut||!i.ts||i.ts>=cut);
+}
+function visible(){
+  const q=el('q').value.trim().toLowerCase();
+  const cut=windowStart();
+  const list=pinnedOnly?[...pin.values()]:items;
+  return list.filter(i=>{
+    if(tab!=='ALL'&&i.cat!==tab)return false;
+    if(!pinnedOnly&&cut&&i.ts&&i.ts<cut)return false;
+    if(unseenOnly&&seen.has(i.id))return false;
+    if(q&&!(i.title+' '+i.src+' '+i.sum).toLowerCase().includes(q))return false;
+    return true;
+  }).sort((a,b)=>b.ts-a.ts);
+}
+const num=n=>n.toLocaleString('en-US');
+const ago=ts=>{
+  if(!ts)return '—';
+  const m=(Date.now()-ts)/6e4;
+  if(m<1)return 'now';
+  if(m<60)return Math.round(m)+'m';
+  if(m<48*60)return Math.round(m/60)+'h';
+  return Math.round(m/1440)+'d';
+};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ── masthead: lead figure, worded claim, counted KPIs ─────────── */
+const WORDS={6:'six hours',24:'twenty-four hours',72:'three days',168:'seven days'};
+
+function masthead(){
+  const win=inWindow();
+  const h=hours();
+  const cves=new Set();
+  for(const i of win){const m=i.title.match(CVE);if(m)cves.add(m[0].toUpperCase())}
+  const advisories=win.filter(i=>i.cat==='Alerts & CVEs').length;
+  const live=poll?poll.live:health.filter(x=>x.ok).length;
+  const total=poll?poll.sources:ALLFEEDS.length-off.size;
+  const age=stamp?Math.round((Date.now()-stamp)/6e4):0;
+
+  if(!ticking)el('figure').textContent=num(win.length);
+  el('claim').innerHTML='Headlines across <b>'+total+' sources</b>, '+
+    (h?'last '+WORDS[h]:'all retained')+'.';
+
+  const parts=[];
+  if(poll){
+    parts.push('Polled in <code>'+poll.seconds+'s</code>');
+    if(poll.median_ms)parts.push('median <code>'+poll.median_ms+'ms</code> per source');
+    if(poll.browser)parts.push('via in-browser relay');
+  }
+  parts.push(num(items.length)+' items retained over '+(poll?poll.retain_days:14)+' days');
+  el('qual').innerHTML=parts.join(' · ')+'.'+
+    (OPERATOR?' Desk operated by '+esc(OPERATOR)+'.':'');
+  el('opline').textContent=OPERATOR?OPERATOR.toUpperCase():'signals desk';
+
+  el('kpis').innerHTML=[
+    ['in window',num(win.length),'headlines',''],
+    ['cve ids seen',num(cves.size),'distinct',cves.size?'alarm':''],
+    ['advisories',num(advisories),'items',''],
+    ['sources live',live+'<small>/'+total+'</small>','',live<total?'alarm':''],
+    ['snapshot age',age<1?'&lt;1':num(age),'min old','']
+  ].map(function(r){
+    return '<div class="kpi '+r[3]+'"><dt>'+r[0]+'</dt><dd>'+r[1]+
+           (r[2]?'<small>'+r[2]+'</small>':'')+'</dd></div>';
+  }).join('');
+
+  volume(win);
+  domains(win);
+}
+
+/* Arrival volume — one series, magnitude over time. No legend (the title
+   names the series); the peak column carries the accent; 2px surface gap. */
+function volume(win){
+  const h=hours()||168;
+  const buckets=h<=24?h:(h<=72?24:14);
+  const span=h<=72?h*36e5/buckets:864e5;
+  const now=Date.now();
+  const counts=new Array(buckets).fill(0);
+  for(const i of win){
+    if(!i.ts)continue;
+    const b=Math.floor((now-i.ts)/span);
+    if(b>=0&&b<buckets)counts[buckets-1-b]++;
+  }
+  const max=Math.max.apply(null,counts.concat([1]));
+  const W=720,H=150,padT=14,padB=18;
+  const plotH=H-padT-padB, slot=W/buckets;
+  const bw=Math.min(24,Math.max(3,slot-2));
+  const base=padT+plotH;
+  const every=buckets>14?Math.ceil(buckets/6):Math.ceil(buckets/8);
+  let bars='',labels='';
+  counts.forEach(function(c,n){
+    const bh=c/max*plotH;
+    const x=n*slot+(slot-bw)/2, y=base-bh, r=Math.min(4,bh/2);
+    bars+='<path class="col'+(c===max?' peak':'')+'" d="M'+x.toFixed(1)+' '+base.toFixed(1)+
+          'V'+(y+r).toFixed(1)+'a'+r.toFixed(1)+' '+r.toFixed(1)+' 0 0 1 '+r.toFixed(1)+' -'+r.toFixed(1)+
+          'h'+(bw-2*r).toFixed(1)+'a'+r.toFixed(1)+' '+r.toFixed(1)+' 0 0 1 '+r.toFixed(1)+' '+r.toFixed(1)+
+          'V'+base.toFixed(1)+'Z"><title>'+c+' item'+(c===1?'':'s')+' · '+
+          bucketLabel(n,buckets,span,now)+'</title></path>';
+    if(n%every===0||n===buckets-1)
+      labels+='<text class="axis" x="'+(x+bw/2).toFixed(1)+'" y="'+(H-5)+
+              '" text-anchor="middle">'+bucketTick(n,buckets,span,now)+'</text>';
+  });
+  el('volh').innerHTML='Arrival volume <b>· '+buckets+' buckets · peak '+max+' per '+
+    (span>=864e5?'day':(span/36e5).toFixed(0)+'h')+'</b>';
+  el('vol').innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Arrival volume, '+
+    buckets+' buckets, peak '+max+'">'+
+    '<line class="gridline" x1="0" y1="'+padT+'" x2="'+W+'" y2="'+padT+'"></line>'+
+    '<line class="gridline" x1="0" y1="'+base+'" x2="'+W+'" y2="'+base+'"></line>'+
+    '<text class="vlabel" x="2" y="'+(padT-4)+'">'+max+'</text>'+bars+labels+'</svg>';
+}
+function bucketDate(n,buckets,span,now){return new Date(now-(buckets-1-n)*span)}
+function bucketLabel(n,buckets,span,now){
+  const d=bucketDate(n,buckets,span,now);
+  return span>=864e5?d.toLocaleDateString('en-US',{month:'short',day:'numeric'})
+                    :d.toLocaleTimeString('en-US',{hour:'numeric'});
+}
+function bucketTick(n,buckets,span,now){
+  const d=bucketDate(n,buckets,span,now);
+  return span>=864e5?(d.getMonth()+1)+'/'+d.getDate()
+                    :String(d.getHours()).padStart(2,'0')+':00';
+}
+
+/* Coverage by domain — magnitude by category, every bar directly labelled. */
+function domains(win){
+  const rows=CATS.map(c=>[c,win.filter(i=>i.cat===c).length]).sort((a,b)=>b[1]-a[1]);
+  const max=Math.max.apply(null,rows.map(r=>r[1]).concat([1]));
+  const feeds=CATS.reduce((n,c)=>n+FEEDS[c].length,0);
+  el('cath').innerHTML='Coverage by domain <b>· '+CATS.length+' domains · '+feeds+' feeds</b>';
+  el('cat').innerHTML=rows.map(function(r){
+    return '<div class="catrow" title="'+esc(r[0])+' · '+num(r[1])+' in window">'+
+      '<span>'+esc(r[0])+'</span>'+
+      '<div class="track"><i style="width:'+(r[1]/max*100).toFixed(1)+'%"></i></div>'+
+      '<b>'+num(r[1])+'</b></div>';
+  }).join('');
+}
+
+/* ── attack origins ────────────────────────────────────────────────
+   DShield reports which countries the traffic comes FROM. There is no
+   target-country endpoint in the free API — the destinations are its own
+   sensor net, spread worldwide — so the destination side of this panel is
+   the ports being hit, not a second geography. Saying otherwise would be
+   inventing data.
+
+   isc.sans.edu/api sends `Access-Control-Allow-Origin: *`, so unlike the RSS
+   feeds this is fetched straight from the browser. The panel therefore fills
+   itself on any origin including file://, with no snapshot and no td-refresh.
+   A snapshot's `dshield` block and the localStorage copy only prime it so the
+   map paints before the network lands. */
+const ISC='https://isc.sans.edu/api/';
+const TOPN=90;        // bubbles past this are sub-pixel
+
+function shapeAttack(rows,ports,day){
+  const countries=(Array.isArray(rows)?rows:[]).map(function(r){
+    return {c:String(r.country||'').trim().toUpperCase(),
+            r:+r.reports||0,s:+r.sources||0,t:+r.targets||0,
+            p:Math.round((+r.persistance||0)*10)/10};
+  }).filter(c=>c.c&&c.c!=='XX'&&c.r>0).sort((a,b)=>b.r-a.r).slice(0,TOPN);
+  /* topports answers with an object keyed "0","1",… plus date/limit scalars */
+  const pp=Object.values(ports&&typeof ports==='object'?ports:{})
+    .filter(v=>v&&typeof v==='object'&&'targetport' in v)
+    .map(v=>({p:+v.targetport,r:+v.records||0,s:+v.sources||0,t:+v.targets||0}))
+    .filter(v=>v.r>0).sort((a,b)=>b.r-a.r);
+  return {t:Date.now(),countries,ports:pp,day:day||null,
+          src:'SANS Internet Storm Center / DShield'};
+}
+
+async function pullAttack(){
+  const get=u=>fetch(ISC+u,{cache:'no-cache',signal:AbortSignal.timeout(12000)})
+    .then(r=>r.ok?r.json():Promise.reject(new Error('HTTP '+r.status)));
+  const [rows,ports]=await Promise.all([get('country/US?json'),
+                                        get('topports/records/10?json')]);
+  let day=null;
+  try{
+    const iso=ms=>new Date(ms).toISOString().slice(0,10);
+    const sums=await get('dailysummary/'+iso(Date.now()-864e5)+'/'+iso(Date.now())+'?json');
+    const last=sums&&sums.length&&sums[sums.length-1];
+    if(last)day={d:last.date,records:+last.records||0,
+                 sources:+last.sources||0,targets:+last.targets||0};
+  }catch(e){}       /* the summary is a caption detail, not the panel */
+  const got=shapeAttack(rows,ports,day);
+  if(!got.countries.length)throw new Error('no source countries');
+  return got;
+}
+
+/* Accepts telemetry from any of the three routes and repaints. Older data never
+   overwrites newer, so a slow snapshot cannot clobber a live pull. */
+function takeAttack(a){
+  if(!a||!a.countries||!a.countries.length)return false;
+  if(attack&&(a.t||0)<=(attack.t||0))return false;
+  attack=a;
+  save(LS.attack,a);
+  threatmap();
+  return true;
+}
+
+async function refreshAttack(){
+  try{takeAttack(await pullAttack())}
+  catch(e){                       /* keep whatever is on screen; note the age */
+    if(attack)threatmap();
+  }
+}
+const PORTNAME={20:'FTP data',21:'FTP',22:'SSH',23:'Telnet',25:'SMTP',53:'DNS',
+  67:'DHCP',69:'TFTP',80:'HTTP',110:'POP3',111:'rpcbind',123:'NTP',135:'MS-RPC',
+  137:'NetBIOS',139:'NetBIOS',143:'IMAP',161:'SNMP',389:'LDAP',443:'HTTPS',
+  445:'SMB',502:'Modbus',587:'SMTP submit',623:'IPMI',631:'IPP',636:'LDAPS',
+  853:'DoT',993:'IMAPS',995:'POP3S',1080:'SOCKS',1433:'MSSQL',1521:'Oracle',1723:'PPTP',
+  1883:'MQTT',1900:'SSDP',2222:'SSH alt',2375:'Docker',2376:'Docker TLS',
+  3128:'Squid',
+  3306:'MySQL',3389:'RDP',4444:'Metasploit',5000:'UPnP',5060:'SIP',
+  5432:'Postgres',5555:'Android ADB',5900:'VNC',6379:'Redis',7547:'CWMP',
+  8000:'HTTP alt',8080:'HTTP alt',8443:'HTTPS alt',8728:'RouterOS',
+  9000:'HTTP alt',9200:'Elastic',11211:'memcached',27017:'MongoDB',
+  32764:'router backdoor',37215:'Huawei UPnP',50000:'SAP'};
+const svc=p=>PORTNAME[p]||'\u2014';
+/* The projection box runs pole to pole; the frame skips the empty polar cap and
+   Antarctica, neither of which ever carries a source bubble. */
+const VIEWY=12,VIEWH=306;
+
+function threatmap(){
+  const wrap=el('geo');
+  if(!wrap)return;
+  const d=attack;
+  const rows=(d&&d.countries||[]).filter(c=>c&&CENT[c.c]&&c.r>0);
+  if(!rows.length){wrap.hidden=true;return}
+  wrap.hidden=false;
+
+  const cs=rows.slice().sort((a,b)=>b.r-a.r);
+  const max=cs[0].r;
+  const hot=new Set(cs.slice(0,3).map(c=>c.c));
+  /* largest first, so the small bubbles land on top and stay clickable */
+  const dots=cs.map(function(c){
+    const at=CENT[c.c];
+    const r=Math.max(1.8,Math.sqrt(c.r/max)*13.5);
+    return '<circle class="orig'+(hot.has(c.c)?' hot':'')+'" cx="'+at[0]+'" cy="'+at[1]+
+      '" r="'+r.toFixed(1)+'"><title>'+esc(CNAME[c.c]||c.c)+' ('+esc(c.c)+') · '+
+      num(c.r)+' reports · '+num(c.s)+' sources · '+num(c.t)+' targets · persistence '+
+      c.p+'</title></circle>';
+  }).join('');
+
+  const total=cs.reduce((n,c)=>n+c.r,0);
+  const mins=d.t?Math.round((Date.now()-d.t)/6e4):0;
+  el('geoh').innerHTML='Attack origins <b>· '+num(cs.length)+' source countries · '+
+    num(total)+' reports · top '+esc(CNAME[cs[0].c]||cs[0].c)+
+    (mins>90?' · pulled '+ago(d.t):'')+'</b>';
+  el('map').innerHTML='<svg viewBox="0 '+VIEWY+' '+MAPW+' '+VIEWH+'" role="img" aria-label="'+
+    'World map, attack source countries sized by report volume, largest '+
+    esc(CNAME[cs[0].c]||cs[0].c)+' at '+num(max)+' reports">'+
+    '<path class="land" d="'+LAND+'"></path>'+dots+'</svg>';
+
+  const day=d.day;
+  el('geonote').textContent='Bubble area is reports from that country, as logged by the '+
+    (d.src||'DShield')+' sensor network'+
+    (day&&day.records?' ('+num(day.records)+' records from '+num(day.sources)+
+      ' sources on '+day.d+')':'')+
+    '. DShield publishes no target geography, so the destination side is the ports '+
+    'column, not a place.';
+
+  const ports=(d.ports||[]).filter(x=>x&&x.r>0).sort((a,b)=>b.r-a.r);
+  el('ports').innerHTML='<h3>Targeted ports <b>· by records</b></h3>'+
+    (ports.length?ports.map(function(x){
+      const w=x.r/ports[0].r*100;
+      return '<div class="portrow" title="port '+x.p+' · '+esc(svc(x.p))+' · '+num(x.r)+
+        ' records from '+num(x.s)+' sources">'+
+        '<span>'+x.p+' '+esc(svc(x.p))+'</span>'+
+        '<div class="track"><i style="width:'+w.toFixed(1)+'%"></i></div>'+
+        '<b>'+num(x.r)+'</b></div>';
+    }).join(''):'<p class="geonote">No port telemetry in this snapshot.</p>');
+}
+
+/* ── the river ─────────────────────────────────────────────────── */
+function rowHTML(i){
+  const cve=(i.title.match(CVE)||[])[0];
+  const alert=i.cat==='Alerts & CVEs';
+  return '<article class="row'+(seen.has(i.id)?' seen':'')+'" data-id="'+esc(i.id)+'">'+
+    '<button class="pin" data-pin="1" aria-pressed="'+(pin.has(i.id)?'true':'false')+
+      '" aria-label="Pin headline">&#9679;</button>'+
+    '<span class="when">'+ago(i.ts)+'</span>'+
+    '<div class="head">'+(alert?'<span class="dot" aria-hidden="true"></span>':'')+
+      '<a href="'+esc(i.link)+'" target="_blank" rel="noopener">'+esc(i.title)+'</a>'+
+      (i.sum?'<p class="gist">'+esc(i.sum)+'</p>':'')+'</div>'+
+    (cve?'<span class="cve">'+esc(cve.toUpperCase())+'</span>':'<span></span>')+
+    '<span class="src">'+esc(i.src)+'<i> · '+code(i.cat)+'</i></span></article>';
+}
+
+function draw(){
+  rail();
+  masthead();
+  statusline();
+  threatmap();
+  const list=visible();
+  const out=el('out');
+  if(!list.length){
+    out.innerHTML='<div class="void"><b>Nothing in this window.</b>'+
+      ' Widen the time range, clear the filter, or poll again.</div>';
+    return;
+  }
+  if(el('view').value==='grid'){
+    const cats=tab==='ALL'?CATS:[tab];
+    let h='';
+    for(const c of cats)for(const f of FEEDS[c]){
+      if(off.has(f.u))continue;
+      const mine=list.filter(i=>i.src===f.n).slice(0,20);
+      const st=health.find(x=>x.n===f.n);
+      if(!mine.length&&(!st||st.ok))continue;
+      h+='<section class="panel"><header><h3>'+esc(f.n)+'</h3><span>'+
+        (st&&!st.ok?'unreachable':mine.length)+'</span></header><ul>'+
+        (mine.map(i=>'<li data-id="'+esc(i.id)+'"><a href="'+esc(i.link)+
+          '" target="_blank" rel="noopener">'+esc(i.title)+'</a><p>'+ago(i.ts)+'</p></li>').join('')
+         ||'<li><p>no items in this window</p></li>')+'</ul></section>';
+    }
+    out.innerHTML='<div class="grid">'+h+'</div>';
+  }else{
+    const dayOf=i=>i.ts?new Date(i.ts).toDateString():'Undated';
+    let h='',day='';
+    for(const i of list.slice(0,600)){
+      const d=dayOf(i);
+      if(d!==day){
+        const n=list.filter(x=>dayOf(x)===d).length;
+        h+='<div class="daymark"><h2>'+(d===new Date().toDateString()?'Today':esc(d))+
+           '</h2><hr><em>'+num(n)+'</em></div>';
+        day=d;
+      }
+      h+=rowHTML(i);
+    }
+    out.innerHTML=h;
+  }
+}
+
+function rail(){
+  const cut=windowStart();
+  const count=c=>items.filter(i=>(c==='ALL'||i.cat===c)&&
+    (!cut||!i.ts||i.ts>=cut)&&!seen.has(i.id)).length;
+  el('rail').innerHTML=['ALL'].concat(CATS).map(function(c){
+    return '<button class="tab" role="tab" aria-selected="'+(c===tab)+'" data-tab="'+esc(c)+
+      '">'+(c==='ALL'?'All domains':esc(c))+'<i>'+count(c)+'</i></button>';
+  }).join('');
+}
+
+function statusline(){
+  const bad=health.filter(h=>!h.ok);
+  const known=health.length||ALLFEEDS.length;
+  const live=health.length?health.length-bad.length:'—';
+  const oldest=items.reduce((m,i)=>i.ts&&i.ts<m?i.ts:m,Date.now());
+  el('status').innerHTML=[
+    '<span><b>'+live+'</b>/'+known+' sources live</span>',
+    '<span>last poll <b>'+(stamp?new Date(stamp).toLocaleString('en-US',
+      {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'—')+'</b></span>',
+    poll?'<span>cycle <b>'+poll.seconds+'s</b></span>':'',
+    '<span><b>'+num(items.length)+'</b> items retained, oldest '+ago(oldest)+'</span>',
+    bad.length?'<span class="fail">'+bad.length+' unreachable</span>':'',
+    '<span>filter <kbd>/</kbd> · poll <kbd>r</kbd> · unread <kbd>u</kbd></span>'
+  ].filter(Boolean).join('');
+}
+
+/* ── interaction ───────────────────────────────────────────────── */
+el('out').addEventListener('click',function(e){
+  const row=e.target.closest('.row,li');
+  if(!row)return;
+  const id=row.dataset.id;
+  const pinBtn=e.target.closest('[data-pin]');
+  if(pinBtn){
+    if(pin.has(id)){pin.delete(id);pinBtn.setAttribute('aria-pressed','false')}
+    else{
+      const o=items.find(x=>x.id===id)||pin.get(id);
+      if(o){pin.set(id,o);pinBtn.setAttribute('aria-pressed','true')}
+    }
+    save(LS.pin,[...pin]);
+    return;
+  }
+  if(e.target.closest('a')){
+    seen.add(id);save(LS.seen,[...seen].slice(-6000));
+    row.classList.add('seen');rail();
+    return;
+  }
+  row.classList.toggle('open');
+});
+el('rail').addEventListener('click',function(e){
+  const t=e.target.closest('.tab');
+  if(!t)return;
+  tab=t.dataset.tab;save(LS.tab,tab);draw();
+});
+el('q').addEventListener('input',draw);
+el('win').addEventListener('change',draw);
+el('view').addEventListener('change',function(e){save(LS.view,e.target.value);draw()});
+function toggleBtn(id,setter){
+  el(id).addEventListener('click',function(e){
+    const on=e.currentTarget.getAttribute('aria-pressed')!=='true';
+    e.currentTarget.setAttribute('aria-pressed',String(on));
+    setter(on);draw();
+  });
+}
+toggleBtn('unseen',v=>unseenOnly=v);
+toggleBtn('pinned',v=>pinnedOnly=v);
+el('poll').onclick=repoll;
+el('markall').onclick=function(){
+  visible().forEach(i=>seen.add(i.id));
+  save(LS.seen,[...seen].slice(-6000));draw();
+};
+function applyTheme(value){
+  const t=[...el('theme').options].some(o=>o.value===value)?value:'night';
+  document.documentElement.dataset.theme=t;
+  el('theme').value=t;
+}
+el('theme').addEventListener('change',function(e){
+  applyTheme(e.target.value);save(LS.lights,el('theme').value);
+});
+el('srcbtn').onclick=function(){
+  el('dbody').innerHTML=CATS.map(function(c){
+    return '<div class="catmark">'+esc(c)+' · '+FEEDS[c].length+' feeds</div>'+
+      FEEDS[c].map(function(f){
+        const st=health.find(x=>x.n===f.n);
+        const stat=st?(st.ok?st.items+' items'+(st.ms?' · '+st.ms+'ms':'')
+                            :'<span class="bad">'+esc(st.err||'unreachable')+'</span>'):'—';
+        return '<div class="feedrow"><div><label><input type="checkbox" data-u="'+esc(f.u)+'" '+
+          (off.has(f.u)?'':'checked')+'> '+esc(f.n)+'</label>'+
+          '<div class="u">'+esc(f.u)+'</div></div>'+
+          '<div class="stat '+(st&&!st.ok?'bad':'')+'">'+stat+'</div></div>';
+      }).join('');
+  }).join('');
+  el('dcount').textContent=(ALLFEEDS.length-off.size)+' of '+ALLFEEDS.length+' enabled';
+  el('dlg').showModal();
+};
+el('dclose').onclick=function(){el('dlg').close()};
+el('dbody').addEventListener('change',function(e){
+  const u=e.target.dataset.u;
+  if(!u)return;
+  e.target.checked?off.delete(u):off.add(u);
+  save(LS.off,[...off]);
+});
+document.addEventListener('keydown',function(e){
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+  if(e.key==='/'){e.preventDefault();el('q').focus()}
+  if(e.key==='r')repoll();
+  if(e.key==='u')el('unseen').click();
+});
+
+/* the one reveal on the page: the lead figure counts up once */
+let ticking=false;
+function tickFigure(target){
+  const node=el('figure');
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches||document.hidden||target<2){
+    node.textContent=num(target);return;
+  }
+  const t0=performance.now(),dur=520;
+  ticking=true;
+  const step=function(now){
+    const p=Math.min(1,(now-t0)/dur);
+    node.textContent=num(Math.round(target*(1-Math.pow(1-p,3))));
+    if(p<1){requestAnimationFrame(step)}
+    else{ticking=false;node.textContent=num(target)}
+  };
+  requestAnimationFrame(step);
+  /* a throttled tab can freeze rAF mid-count — land the exact figure regardless */
+  setTimeout(function(){if(ticking){ticking=false;node.textContent=num(target)}},dur+400);
+}
+
+/* ── boot ──────────────────────────────────────────────────────────
+   Snapshot precedence: data/snapshot.json (what the hosted build serves,
+   refreshed by the scheduled poll) → EMBED (baked in by `td-refresh --embed`
+   for offline single-file use) → localStorage cache → poll in the browser. */
+applyTheme(load(LS.lights,'night'));
+el('view').value=load(LS.view,'river');
+
+function adopt(snap,src){
+  if(!snap||!snap.items||!snap.items.length||snap.t<=stamp)return false;
+  items=snap.items;health=snap.health||[];poll=snap.poll||null;stamp=snap.t;
+  if(snap.dshield)takeAttack(snap.dshield);   /* primes the map before the live pull */
+  source=src;
+  return true;
+}
+let source='';
+
+function start(){
+  if(items.length){
+    dedupe();draw();
+    tickFigure(inWindow().length);
+    if((Date.now()-stamp)/6e4>240)repoll();
+  }else{
+    repoll();
+  }
+}
+
+adopt(EMBED,'embedded');
+adopt(load(LS.cache,null),'cache');
+takeAttack(load(LS.attack,null));   /* paint the last map instantly, then refresh it */
+refreshAttack();
+
+/* Every feed in FEEDS answers without an Access-Control-Allow-Origin header, so a
+   browser cannot read them directly — the in-page poll is a rate-limited relay and
+   reaches maybe a quarter of them. The scheduled poll has no such limit, and
+   raw.githubusercontent serves the deploy branch with `Access-Control-Allow-Origin: *`,
+   so this page reads the scheduled snapshot instead. That is what makes a bare
+   threat-desk.html work on its own, over file://, with nothing installed and no
+   server: headlines from here, the map straight from the ISC API. Requires the repo
+   to stay public. */
+const SNAPSHOT='data/snapshot.json';
+const REMOTE_SNAPSHOT='https://raw.githubusercontent.com/MrDadpool/threat-desk/'+
+                      'deploy/data/snapshot.json';
+
+async function loadSnapshot(){
+  const get=u=>fetch(u,{cache:'no-cache'})
+    .then(r=>r.ok?r.json():Promise.reject(new Error('HTTP '+r.status)));
+  /* a file:// page cannot fetch a sibling JSON at all, so it skips straight to the
+     network copy; a served page prefers its own */
+  const routes=location.protocol==='file:'
+    ? [[REMOTE_SNAPSHOT,'deploy branch']]
+    : [[SNAPSHOT,'hosted'],[REMOTE_SNAPSHOT,'deploy branch']];
+  for(const [url,label] of routes){
+    try{
+      if(adopt(await get(url),label)){dedupe();break}
+    }catch(e){}
+  }
+  start();
+}
+loadSnapshot();
+</script>
+</body>
+</html>
