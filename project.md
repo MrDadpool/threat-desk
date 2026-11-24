@@ -3,6 +3,9 @@
 Replacement for start.me/p/wMrA5z/cyber-threat-intelligence. Local, no accounts,
 no hosting, no third-party service holding the source list.
 
+Waiting on: David to connect Cloudflare Pages to the repo (deploy branch) and attach threatdesk.dadmadeanapp.com
+Next action: After hosting is live, optionally put Cloudflare Access in front of it
+
 ## Files
 - `threat-desk.html` — the reader. Feed registry lives in the `FEEDS` object at the top of
   the `<script>`; the latest snapshot is embedded in `var EMBED={...}` further down.
